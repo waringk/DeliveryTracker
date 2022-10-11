@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('tracker/', include('tracker.urls')),
+    path('', include('tracker.urls')),
 ]
 
 if settings.DEBUG:
