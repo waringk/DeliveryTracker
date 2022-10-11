@@ -4,9 +4,8 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-  Hi Username!
-  <p><a href="">Log Out</a></p>
+  Hi {{ user.username }}!
 {% else %}
-  <p>You are not logged in.</p>
+  <p>Welcome to the Delivery Tracker! Please log in.</p>
 {% endif %}
 {% endblock content %}
