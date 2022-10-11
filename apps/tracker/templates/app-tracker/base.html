@@ -21,12 +21,19 @@
                     <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center
             mb-md-0">
                         {% if user.is_authenticated %}
-                        <!--TODO: Create navigation for photos and events.-->
-                    {% else %}
-                        <!--TODO: Add login and sign up routes.-->
+                        <!--TODO: Create navigation for photos and events pages.-->
+                        <li><a href="" class="nav-link px-2 link-dark">Photos</a></li>
+                        <li><a href="" class="nav-link px-2 link-dark">Events</a></li>
                     </ul>
                     <div class="text-end">
-                        <a href="" class="btn btn-outline-primary me-2">Log In</a>
+                        <a href="" class="btn btn-outline-primary me-2">Settings</a>
+                        <a href="{% url 'logout' %}" class="btn btn-danger">Log Out</a>
+                    </div>
+                    {% else %}
+                    </ul>
+                    <div class="text-end">
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">Log In</a>
+                        <!--TODO: Add Sign up route.-->
                         <a href="" class="btn btn-primary">Sign Up</a>
                     </div>
                     {% endif %}
