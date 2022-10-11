@@ -1,0 +1,12 @@
+{% extends "app-tracker/base.html" %}
+
+{% block title %}Home{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  Hi Username!
+  <p><a href="">Log Out</a></p>
+{% else %}
+  <p>You are not logged in.</p>
+{% endif %}
+{% endblock content %}
