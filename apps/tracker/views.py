@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import UserCreationForm
+from .forms import UserRegisterForm
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView
 
@@ -9,8 +9,8 @@ class HomePageView(TemplateView):
 
 
 class SignUpView(CreateView):
-    # Use Django's generic Creation form for the signup.
-    form_class = UserCreationForm
+    # Use UserRegisterForm for the signup view.
+    form_class = UserRegisterForm
     # Redirect the user to the login page after signing up successfully.
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
