@@ -1,7 +1,16 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-# Create your views here.
+from .forms import UserRegisterForm
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, TemplateView
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the Delivery Tracker index page.")
+class HomePageView(TemplateView):
+    # Specify template name to use app level home.html.
+    template_name = "app-tracker/home.html"
+
+
+class SignUpView(CreateView):
+    # Use UserRegisterForm for the signup view.
+    form_class = UserRegisterForm
+    # Redirect the user to the login page after signing up successfully.
+    success_url = reverse_lazy("login")
+    template_name = "registration/signup.html"

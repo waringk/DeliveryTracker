@@ -1,0 +1,11 @@
+{% extends "app-tracker/base.html" %}
+
+{% block title %}Home{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  Hi {{ user.username }}!
+{% else %}
+  <p>Welcome to the Delivery Tracker! Please log in.</p>
+{% endif %}
+{% endblock content %}
