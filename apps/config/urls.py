@@ -17,12 +17,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from event.views import upload_frame
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('tracker.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('tracker.urls')),
+    path("uploadFrame/", upload_frame)
 ]
 
 if settings.DEBUG:
