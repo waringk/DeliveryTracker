@@ -137,6 +137,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 # Specify where to redirect the user upon a successful login and logout.
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
