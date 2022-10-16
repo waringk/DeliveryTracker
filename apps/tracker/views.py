@@ -18,6 +18,9 @@ import numpy as np
 
 from .models import Event
 
+from django_tables2 import SingleTableView
+from .tables import EventTable
+
 
 class HomePageView(TemplateView):
     # Specify template name to use app level home.html.
@@ -61,12 +64,19 @@ def upload_frame(request):
     return HttpResponse('Upload successful')
 
 
-class EventListView(generic.ListView):
-    # Template for user to view all their events.
+# class EventListView(generic.ListView):
+#     # Template for user to view all their events - Non-table format.
+#     model = Event
+#     context_object_name = 'event_list'
+#     queryset = Event.objects.all()
+#     template_name = "app-tracker/events_list.html"
+
+
+class EventListView(SingleTableView):
+    # Template for user to view all their events in a table format.
     model = Event
-    context_object_name = 'event_list'
-    queryset = Event.objects.all()
-    template_name = "app-tracker/events_list.html"
+    table_class = EventTable
+    template_name = 'app-tracker/events_list.html'
 
 
 class EventDetailView(generic.DetailView):

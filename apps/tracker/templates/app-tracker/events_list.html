@@ -1,4 +1,5 @@
 {% extends "app-tracker/base.html" %}
+{% load render_table from django_tables2 %}
 
 {% block title %}Home{% endblock title %}
 
@@ -8,6 +9,8 @@
 {% else %}
   <p>Welcome to the Delivery Tracker! Please log in.</p>
 {% endif %}
+
+{% render_table table %}
 
   <h1>Event List</h1>
   {% if event_list %}
