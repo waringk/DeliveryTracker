@@ -1,9 +1,10 @@
+from django.views import generic
+
 from .forms import UserRegisterForm
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, ListView
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-
 
 from django.core.files.base import ContentFile
 
@@ -17,6 +18,7 @@ import numpy as np
 
 from .models import Event
 
+
 class HomePageView(TemplateView):
     # Specify template name to use app level home.html.
     template_name = "app-tracker/home.html"
@@ -28,6 +30,7 @@ class SignUpView(CreateView):
     # Redirect the user to the login page after signing up successfully.
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
+
 
 @csrf_exempt
 def upload_frame(request):
@@ -56,4 +59,20 @@ def upload_frame(request):
         eventInstance.save()
 
     return HttpResponse('Upload successful')
+
+
+class EventListView(generic.ListView):
+    # Template for user to view all their events.
+    model = Event
+    context_object_name = 'event_list'
+    queryset = Event.objects.all()
+    template_name = "app-tracker/events_list.html"
+
+
+class EventDetailView(generic.DetailView):
+    # Template for user to view an individual event.
+    model = Event
+    context_object_name = 'event'
+    template_name = "app-tracker/event_detail.html"
+
 

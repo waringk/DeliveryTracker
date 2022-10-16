@@ -13,3 +13,5 @@ class Event(models.Model):
     class Meta:
         get_latest_by = "upload_date"
         app_label = 'tracker'
+
+    objects = models.Manager()
