@@ -1,25 +1,21 @@
-from django.views import generic
-
-from .forms import UserRegisterForm
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, TemplateView, ListView
-from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
-
-from django.core.files.base import ContentFile
-
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
+import json
 from datetime import datetime
 
-import json
 import cv2
 import numpy as np
-
-from .models import Event
-
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
+from django.http import HttpResponse
+from django.urls import reverse_lazy
+from django.views import generic
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import CreateView, TemplateView
 from django_tables2 import SingleTableView
-from .tables import EventTable
+
+from .forms import UserRegisterForm
+from .models import Event
+from .tables import EventTable, PhotoTable
 
 
 class HomePageView(TemplateView):
@@ -64,12 +60,18 @@ def upload_frame(request):
     return HttpResponse('Upload successful')
 
 
-# class EventListView(generic.ListView):
-#     # Template for user to view all their events - Non-table format.
-#     model = Event
-#     context_object_name = 'event_list'
-#     queryset = Event.objects.all()
-#     template_name = "app-tracker/events_list.html"
+class PhotoListView(SingleTableView):
+    # Shows a list of photos
+    model = Event
+    table_class = PhotoTable
+    template_name = 'app-tracker/photos_list.html'
+
+
+class PhotoDetailView(generic.DetailView):
+    # Template for user to view an individual photo.
+    model = Event
+    context_object_name = 'event'
+    template_name = "app-tracker/photo_detail.html"
 
 
 class EventListView(SingleTableView):
@@ -84,5 +86,3 @@ class EventDetailView(generic.DetailView):
     model = Event
     context_object_name = 'event'
     template_name = "app-tracker/event_detail.html"
-
-
