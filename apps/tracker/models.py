@@ -5,7 +5,7 @@ from django.utils import timezone
 
 class Event(models.Model):
     photo = models.ImageField(upload_to='images/')
-    created = models.DateTimeField(default=timezone.now())
+    created = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
