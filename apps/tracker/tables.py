@@ -14,8 +14,11 @@ class PhotoTable(tables.Table):
     def render_photo(self, value, record):
         # Render the photo as a linkable image in the column
         return mark_safe(self.linkify(
-            "<img src='" + value.url + "' width='480' height='200' />",
+            "<img src='" + value.url + "' class='img-fluid'  />",
             record) + " " + self.linkify('<br>Event Details', record))
+        #return mark_safe(self.linkify(
+        #    "<img src='" + value.url + "' width='480' height='200' />",
+        #    record) + " " + self.linkify('<br>Event Details', record))
 
     def linkify(self, text, record):
         # Render the event link in the column to events' details page
@@ -39,7 +42,7 @@ class EventTable(tables.Table):
     def render_photo(self, value, record):
         # Render the photo as a linkable image in the column
         return mark_safe(self.linkify(
-            "<img src='" + value.url + "' width='400' height='200' />",
+            "<img src='" + value.url + "' class='img-fluid' />",
             record) + " " + self.linkify('<br>Event Details', record))
 
     def linkify(self, text, record):
