@@ -1,0 +1,20 @@
+{% extends "app-tracker/base.html" %}
+
+{% block title %}Photo Detail{% endblock title %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  Hi {{ user.username }}!
+{% else %}
+  <p>Welcome to the Delivery Tracker! Please log in.</p>
+{% endif %}
+
+  <h1>Photo: {{ event.title }}</h1>
+  <img src="{{ event.photo.url }}" class="img-fluid" >
+  <p><strong>Photo:</strong> <a href="">{{ event.photo }}</a></p>
+  <p><strong>Created:</strong> {{ event.created }}</p>
+  <p><strong>User:</strong> {{ event.user }}</p>
+
+
+
+{% endblock content %}
