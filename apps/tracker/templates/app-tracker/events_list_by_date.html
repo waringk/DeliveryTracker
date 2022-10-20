@@ -13,7 +13,7 @@
 <p></p>
 Select By Date: <form action="/events_by_date/" method="post">
   {% csrf_token %}
-    {{ form.as_table }}
+    {{ form.as_p }}
     <input type="submit" value="Submit" />
 </form>
 
@@ -35,5 +35,6 @@ Select By Date: <form action="/events_by_date/" method="post">
       </li>
   </ul>
     {% endfor %}
-{% endif %}
+
+  {% endif %}
 {% endblock content %}
