@@ -1,19 +1,18 @@
 import json
 from datetime import datetime
-
 import cv2
 import numpy as np
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views import generic
+from django.views import generic, View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import CreateView, TemplateView
-from django_tables2 import SingleTableView
-
-from .forms import UserRegisterForm
+from django.views.generic import CreateView, TemplateView, ListView
+from django_tables2 import SingleTableView, SingleTableMixin
+from .forms import UserRegisterForm, DateForm
 from .models import Event
 from .tables import EventTable, PhotoTable
 
@@ -74,15 +73,81 @@ class PhotoDetailView(generic.DetailView):
     template_name = "app-tracker/photo_detail.html"
 
 
-class EventListView(SingleTableView):
-    # Template for user to view all their events in a table format.
-    model = Event
-    table_class = EventTable
-    template_name = 'app-tracker/events_list.html'
-
-
 class EventDetailView(generic.DetailView):
     # Template for user to view an individual event.
     model = Event
     context_object_name = 'event'
     template_name = "app-tracker/event_detail.html"
+
+
+# class EventListView(SingleTableView):
+#     # Original Event List View without date picker
+#     # Template for user to view all their events in a table format.
+#     model = Event
+#     table_class = EventTable
+#     template_name = 'app-tracker/events_list.html'
+
+
+class EventListView(CreateView, SingleTableView):
+    # View for user to view their events in a table format
+    # By Default - Displays user's most recent uploaded date of photo(s)
+    model = Event
+    table_class = EventTable
+    template_name = 'app-tracker/events_list.html'
+    form_class = DateForm
+
+    def get(self, request):
+        # Finds most recently uploaded photo(s) date by default
+        today = datetime.now(None)
+        newest_event = Event.objects.filter().order_by('-created').values('created')[:1]
+        today = newest_event[0]['created'].date()
+        # Initializes the date form with the most recent photo(s) date
+        form = DateForm(initial={'created': today})
+        table = EventTable(Event.objects.filter(user=self.request.user).filter(created__date=today))
+        return render(request, self.template_name, {"form": form, "table": table})
+
+
+class MyFormView(View, SingleTableMixin):
+    # Form view for selecting displayed Events by date with calendar widget
+    form_class = DateForm
+    initial = {'events': Event.objects.all()}
+    template_name = 'app-tracker/events_list.html'
+
+    def post(self, request, *args, **kwargs):
+        # Post request for filtering Events by date
+        form = self.form_class(request.POST)
+        form.instance.user = request.user
+        user_events = Event.objects.filter(user=self.request.user)
+        if form.is_valid():
+            date = form.cleaned_data['created']
+            date_only = date.date()
+            # If the submitted value is invalid, display the user's events
+            if not date:
+                return render(request, self.template_name, {'form': user_events})
+            # Otherwise, redirect the user to the selected day's events
+            else:
+                return HttpResponseRedirect(f"../events/" + str(date_only), {'form': form})
+        return render(request, self.template_name, {'form': form})
+
+
+class MyFormViewResultsView(CreateView, SingleTableView):
+    # Results of selecting Events by date with calendar widget
+    redirect_field_name = 'redirect_to'
+    form_class = DateForm
+    model = Event
+    table_class = EventTable
+    template_name = 'app-tracker/events_list_by_date.html'
+
+    def get(self, request, date):
+        # Get request for filtering Events by date
+        return self.events_by_date_results(request, date)
+
+    def events_by_date_results(self, request, date):
+        # Display's selected Events by date with calendar widget
+        if request.method == 'GET':
+            form = self.form_class(request.GET)
+            form.instance.user = request.user
+            # Initializes the date form with the most recently selected date
+            form = DateForm(initial={'created': date})
+            table = EventTable(Event.objects.filter(user=self.request.user).filter(created__date=date))
+            return render(request, "app-tracker/events_list_by_date.html", {"form": form, "table": table})
