@@ -30,6 +30,7 @@ class PhotoTable(tables.Table):
         sequence = ("photo", "created", "user",)
         fields = ("photo", "created", "user",)
         exclude = ("id",)
+        empty_text = "No data available."
 
 
 class EventTable(tables.Table):
@@ -55,3 +56,4 @@ class EventTable(tables.Table):
         sequence = ("photo", "created", "user",)
         fields = ("photo", "created", "user",)
         exclude = ("id",)
+        empty_text = "No data available."

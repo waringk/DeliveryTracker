@@ -13,7 +13,7 @@
 <p></p>
 Select By Date: <form action="/events_by_date/" method="post">
   {% csrf_token %}
-    {{ form.as_p }}
+    {{ form.as_table }}
     <input type="submit" value="Submit" />
 </form>
 

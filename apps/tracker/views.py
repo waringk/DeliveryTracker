@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.views import generic, View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, ListView
-from django_tables2 import SingleTableView, SingleTableMixin
+from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 from .forms import UserRegisterForm, DateForm
 from .models import Event
 from .tables import EventTable, PhotoTable
@@ -80,14 +80,6 @@ class EventDetailView(generic.DetailView):
     template_name = "app-tracker/event_detail.html"
 
 
-# class EventListView(SingleTableView):
-#     # Original Event List View without date picker
-#     # Template for user to view all their events in a table format.
-#     model = Event
-#     table_class = EventTable
-#     template_name = 'app-tracker/events_list.html'
-
-
 class EventListView(CreateView, SingleTableView):
     # View for user to view their events in a table format
     # By Default - Displays user's most recent uploaded date of photo(s)
@@ -99,15 +91,21 @@ class EventListView(CreateView, SingleTableView):
     def get(self, request):
         # Finds most recently uploaded photo(s) date by default
         today = datetime.now(None)
-        newest_event = Event.objects.filter().order_by('-created').values('created')[:1]
-        today = newest_event[0]['created'].date()
-        # Initializes the date form with the most recent photo(s) date
-        form = DateForm(initial={'created': today})
-        table = EventTable(Event.objects.filter(user=self.request.user).filter(created__date=today))
+        try:
+            # Initializes the date form with the most recent photo(s) date
+            newest_event = Event.objects.filter().order_by('-created').values('created')[:1]
+            today = newest_event[0]['created'].date()
+            form = DateForm(initial={'created': today})
+            table = EventTable(Event.objects.filter(user=self.request.user).filter(created__date=today))
+        # If there are no photos for the user, renders an empty event list
+        except IndexError:
+            form = DateForm(initial={'created': today})
+            table = EventTable(Event.objects.all())
+        RequestConfig(request).configure(table)
         return render(request, self.template_name, {"form": form, "table": table})
 
 
-class MyFormView(View, SingleTableMixin):
+class EventsByDateFormView(View, SingleTableMixin):
     # Form view for selecting displayed Events by date with calendar widget
     form_class = DateForm
     initial = {'events': Event.objects.all()}
@@ -130,7 +128,7 @@ class MyFormView(View, SingleTableMixin):
         return render(request, self.template_name, {'form': form})
 
 
-class MyFormViewResultsView(CreateView, SingleTableView):
+class EventsByDateFormResultsView(CreateView, SingleTableView):
     # Results of selecting Events by date with calendar widget
     redirect_field_name = 'redirect_to'
     form_class = DateForm
@@ -143,11 +141,12 @@ class MyFormViewResultsView(CreateView, SingleTableView):
         return self.events_by_date_results(request, date)
 
     def events_by_date_results(self, request, date):
-        # Display's selected Events by date with calendar widget
+        # Displays selected Events by date with calendar widget
         if request.method == 'GET':
             form = self.form_class(request.GET)
             form.instance.user = request.user
             # Initializes the date form with the most recently selected date
             form = DateForm(initial={'created': date})
             table = EventTable(Event.objects.filter(user=self.request.user).filter(created__date=date))
+            RequestConfig(request).configure(table)
             return render(request, "app-tracker/events_list_by_date.html", {"form": form, "table": table})
