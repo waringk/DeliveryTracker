@@ -13,6 +13,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, ListView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 from .forms import UserRegisterForm, DateForm
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.conf import settings
 from .models import Event
 from .tables import EventTable, PhotoTable
 
@@ -55,6 +58,8 @@ def upload_frame(request):
         photoName = photoName.replace(":", ".")
         eventInstance.photo.save(photoName, content, save=False)
         eventInstance.save()
+
+        send_email(user.email, user.username)
 
     return HttpResponse('Upload successful')
 
@@ -150,3 +155,18 @@ class EventsByDateFormResultsView(CreateView, SingleTableView):
             table = EventTable(Event.objects.filter(user=self.request.user).filter(created__date=date))
             RequestConfig(request).configure(table)
             return render(request, "app-tracker/events_list_by_date.html", {"form": form, "table": table})
+
+def send_email(user_email, user_name):
+    # Send event notification to user
+    emailMessage = render_to_string('app-tracker/email.html',
+                                    {'username': user_name})
+    email = EmailMessage(
+        'New Event Notification',
+        emailMessage,
+        settings.EMAIL_HOST_USER,
+        [user_email]
+    )
+    email.fail_silently = False
+    email.send()
+    return
+
