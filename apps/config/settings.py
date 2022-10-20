@@ -144,3 +144,13 @@ LOGOUT_REDIRECT_URL = "home"
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
+
+# SMTP Email Configuration
+# https://suhailvs.github.io/blog02.html#mail-setup-on-django-using-gmail
+# new host emails must also unlock captcha
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'deliverytrackerteam@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')

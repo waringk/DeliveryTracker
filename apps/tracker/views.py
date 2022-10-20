@@ -13,6 +13,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, ListView
 from django_tables2 import SingleTableView, SingleTableMixin
 from .forms import UserRegisterForm, DateForm
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.conf import settings
 from .models import Event
 from .tables import EventTable, PhotoTable
 
@@ -56,6 +59,8 @@ def upload_frame(request):
         eventInstance.photo.save(photoName, content, save=False)
         eventInstance.save()
 
+        send_email(user.email, user.username)
+
     return HttpResponse('Upload successful')
 
 
@@ -78,14 +83,6 @@ class EventDetailView(generic.DetailView):
     model = Event
     context_object_name = 'event'
     template_name = "app-tracker/event_detail.html"
-
-
-# class EventListView(SingleTableView):
-#     # Original Event List View without date picker
-#     # Template for user to view all their events in a table format.
-#     model = Event
-#     table_class = EventTable
-#     template_name = 'app-tracker/events_list.html'
 
 
 class EventListView(CreateView, SingleTableView):
@@ -151,3 +148,18 @@ class MyFormViewResultsView(CreateView, SingleTableView):
             form = DateForm(initial={'created': date})
             table = EventTable(Event.objects.filter(user=self.request.user).filter(created__date=date))
             return render(request, "app-tracker/events_list_by_date.html", {"form": form, "table": table})
+
+def send_email(user_email, user_name):
+    # Send event notification to user
+    emailMessage = render_to_string('app-tracker/email.html',
+                                    {'username': user_name})
+    email = EmailMessage(
+        'New Event Notification',
+        emailMessage,
+        settings.EMAIL_HOST_USER,
+        [user_email]
+    )
+    email.fail_silently = False
+    email.send()
+    return
+
