@@ -3,6 +3,9 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.admin.widgets import AdminDateWidget
 from django.forms import ModelForm, Form
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+
 from .models import Event
 
 
@@ -31,3 +34,6 @@ class DateForm(ModelForm):
         widgets = {
             'created': DateInput(),
         }
+
+class DeleteEventsForm(forms.Form):
+    selected_events = forms.BooleanField(required=False)

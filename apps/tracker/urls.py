@@ -9,6 +9,8 @@ urlpatterns = [
     path('events/<int:pk>', views.EventDetailView.as_view(), name='event_detail'),
     path('events_by_date/', views.EventsByDateFormView.as_view(), name='events_by_date'),
     path('events/<str:date>', views.EventsByDateFormResultsView.as_view(), name='events_by_date_results'),
+    path('events_delete', views.EventsDeleteView.as_view(), name='events_delete'),
     path('photos/', views.PhotoListView.as_view(), name='photos'),
     path('photos/<int:pk>', views.PhotoDetailView.as_view(),name='photo_detail'),
+
 ]

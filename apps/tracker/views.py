@@ -10,9 +10,9 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import generic, View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import CreateView, TemplateView, ListView
+from django.views.generic import CreateView, TemplateView, ListView, FormView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
-from .forms import UserRegisterForm, DateForm
+from .forms import UserRegisterForm, DateForm, DeleteEventsForm
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -156,6 +156,25 @@ class EventsByDateFormResultsView(CreateView, SingleTableView):
             RequestConfig(request).configure(table)
             return render(request, "app-tracker/events_list_by_date.html", {"form": form, "table": table})
 
+
+class EventsDeleteView(CreateView, SingleTableView, SingleTableMixin):
+    form_class = DeleteEventsForm
+    template_name = 'app-tracker/events_list.html'
+    table_class = EventTable
+
+    def post(self, request):
+        if request.method == 'POST':
+            form = self.form_class(request.POST)
+            user_events = Event.objects.filter(user=self.request.user)
+            table = EventTable(Event.objects.filter(user=self.request.user))
+            if form.is_valid():
+                for item in request.POST:
+                    if item.startswith('selected_events'):
+                        selected_events = request.POST.get(item, None)
+                        Event.objects.get(id=selected_events).delete()
+            return HttpResponseRedirect(f"../events/", {'form': form})
+
+
 def send_email(user_email, user_name):
     # Send event notification to user
     emailMessage = render_to_string('app-tracker/email.html',
@@ -169,4 +188,3 @@ def send_email(user_email, user_name):
     email.fail_silently = False
     email.send()
     return
-
