@@ -12,6 +12,7 @@ class Event(models.Model):
         return str(self.photo)
 
     class Meta:
+        ordering = ['-created']
         get_latest_by = "upload_date"
         app_label = 'tracker'
 

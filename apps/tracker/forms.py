@@ -35,5 +35,6 @@ class DateForm(ModelForm):
             'created': DateInput(),
         }
 
+
 class DeleteEventsForm(forms.Form):
     selected_events = forms.BooleanField(required=False)

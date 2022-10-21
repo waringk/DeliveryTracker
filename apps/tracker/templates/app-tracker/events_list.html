@@ -1,46 +1,41 @@
 {% extends "app-tracker/base.html" %}
 {% load render_table from django_tables2 %}
 
-{% block title %}Home{% endblock title %}
+{% block title %}Events{% endblock title %}
 
 {% block content %}
-{% if user.is_authenticated %}
-  Hi {{ user.username }}!
-{% else %}
-  <p>Welcome to the Delivery Tracker! Please log in.</p>
-{% endif %}
-<p></p>
-<p></p>
-Select By Date: <form action="/events_by_date/" method="post">
-  {% csrf_token %}
-    {{ form.as_table }}
-    <input type="submit" value="Submit" />
-</form>
+  {% if user.is_authenticated %}
+    <p></p>
+    <p></p>
+    Select By Date <form action="/events_by_date/" method="post">{% csrf_token %}
+      {{ form.as_table }}
+      <input type="submit" value="Submit" />
+    </form>
+    <p></p>
+    <p></p>
 
-<p></p>
-<p></p>
+    <form action="{% url 'events_delete' %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Delete Events">
+      <p></p>
+      <p></p>
+    <h2>Events : {{ table.rows|length }}</h2>
+    {% render_table table %}
+    </form>
 
-<form action="{% url 'events_delete' %}" method="post">
-    {% csrf_token %}
-    <input type="submit" value="Delete Events">
-
-  <h2>Events : {{ table.rows|length }}</h2>
-{% render_table table %}
-  </form>
-
-  {% if event_list %}
-  <ul style="list-style-type: none;">
-    {% for event in event_list %}
-
-      <li>
-        <a href="{% url 'event_detail' pk=event.id %}"><img src="{{ event.photo.url }}" width="100" height="100"></a>
-        <a href="{% url 'event_detail' pk=event.id %}">Event Details</a>
-        ({{event.created}}) ({{event.user}})
-
-          <br></br>
-      </li>
-  </ul>
-
-    {% endfor %}
-{% endif %}
+    {% if event_list %}
+      <ul style="list-style-type: none;">
+        {% for event in event_list %}
+          <li>
+            <a href="{% url 'event_detail' pk=event.id %}"><img src="{{ event.photo.url }}" width="100" height="100"></a>
+            <a href="{% url 'event_detail' pk=event.id %}">Event Details</a>
+            ({{event.created}}) ({{event.user}})
+              <br></br>
+          </li>
+      </ul>
+      {% endfor %}
+    {% endif %}
+  {% else %}
+    <p>Welcome to the Delivery Tracker! Please log in.</p>
+  {% endif %}
 {% endblock content %}
