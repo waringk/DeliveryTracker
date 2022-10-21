@@ -36,10 +36,10 @@ class PhotoTable(tables.Table):
 class EventTable(tables.Table):
     # Creates the columns for model attributes
     id = tables.Column()
+    selected_events = tables.Column(empty_values=())
     photo = tables.Column()
     created = tables.Column()
     user = tables.Column()
-    selected_events = tables.Column(empty_values=())
 
     def __init__(self, *args, **kwargs):
         super(EventTable, self).__init__(*args, **kwargs)
@@ -61,7 +61,7 @@ class EventTable(tables.Table):
     class Meta:
         model = Event
         template_name = "django_tables2/bootstrap4.html"
-        sequence = ("photo", "created", "user", "selected_events")
+        sequence = ("selected_events", "photo", "created", "user")
         fields = ("photo", "created", "user","selected_events")
         exclude = ("id",)
         empty_text = "No data available."
