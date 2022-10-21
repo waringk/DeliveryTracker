@@ -25,17 +25,18 @@
             <li><a href="{% url 'events' %}" class="nav-link px-2 link-dark">Events</a></li>
           </ul>
           <div class="text-end">
-              <!--Stretch Goal: Allow users to update their email and password.-->
+              Hi {{ user.username }}!
+            <!--Stretch Goal: Allow users to update their email and password.-->
             <a href="" class="btn btn-outline-primary me-2">Settings</a>
             <a href="{% url 'logout' %}" class="btn btn-danger">Log Out</a>
           </div>
-          {% else %}
+            {% else %}
           </ul>
           <div class="text-end">
             <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">Log In</a>
             <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
           </div>
-          {% endif %}
+            {% endif %}
         </div>
       </div>
     </header>
