@@ -41,9 +41,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tracker',
+    # 3rd Party
     'django_tables2',
-    #'apps.event',
+    'crispy_forms',
+    'crispy_bootstrap5',
+    # Local
+    'tracker',
 ]
 
 MIDDLEWARE = [
@@ -142,15 +145,18 @@ MEDIA_URL = '/media/'
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
+DATA_UPLOAD_MAX_MEMORY_SIZE = 25165824
 
 
 # SMTP Email Configuration
 # https://suhailvs.github.io/blog02.html#mail-setup-on-django-using-gmail
 # new host emails must also unlock captcha
-
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'deliverytrackerteam@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+
+# Crispy Forms Template Setup
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

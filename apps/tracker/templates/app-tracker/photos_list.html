@@ -5,11 +5,11 @@
 
 {% block content %}
   {% if user.is_authenticated %}
-    Hi {{ user.username }}!
+    <h2>Photos : {{ table.rows|length }}</h2>
+    {% render_table table %}
   {% else %}
     <p>Welcome to the Delivery Tracker! Please log in.</p>
   {% endif %}
-  <h2>Photos : {{ table.rows|length }}</h2>
-  {% render_table table %}
+
 
 {% endblock content %}
