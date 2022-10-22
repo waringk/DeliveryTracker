@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.HomePageView.as_view(), name='home'),
     path('uploadFrame/', views.upload_frame, name='uploadFrame'),
     path('events/', views.EventListView.as_view(), name='events'),
+    path('events/<int:pk>/delete', views.EventDeleteView.as_view(), name='delete_event'),
     path('events/<int:pk>', views.EventDetailView.as_view(), name='event_detail'),
     path('events_by_date/', views.EventsByDateFormView.as_view(), name='events_by_date'),
     path('events/<str:date>', views.EventsByDateFormResultsView.as_view(), name='events_by_date_results'),

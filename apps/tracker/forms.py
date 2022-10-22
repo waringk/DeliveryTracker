@@ -37,4 +37,5 @@ class DateForm(ModelForm):
 
 
 class DeleteEventsForm(forms.Form):
-    selected_events = forms.BooleanField(required=False)
+    # Adds checkboxes to Events
+    selected_events = forms.BooleanField(required=False, initial=False)
