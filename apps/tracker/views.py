@@ -10,15 +10,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views import generic, View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, DeleteView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 
-from .forms import UserRegisterForm, DateForm
+from .forms import UserRegisterForm, DateForm, DeleteEventsForm
 from .models import Event
 from .tables import EventTable, PhotoTable
 
@@ -141,8 +141,7 @@ class EventsByDateFormView(LoginRequiredMixin, View, SingleTableMixin):
         return render(request, self.template_name, {'form': form})
 
 
-class EventsByDateFormResultsView(LoginRequiredMixin, CreateView,
-                                  SingleTableView):
+class EventsByDateFormResultsView(LoginRequiredMixin, CreateView, SingleTableView):
     # Results of selecting Events by date with calendar widget
     redirect_field_name = 'redirect_to'
     form_class = DateForm
@@ -169,6 +168,39 @@ class EventsByDateFormResultsView(LoginRequiredMixin, CreateView,
                           {"form": form, "table": table})
 
 
+class EventsDeleteView(CreateView, SingleTableView, SingleTableMixin):
+    # Form view for deleting selected events with checkbox
+    form_class = DeleteEventsForm
+    template_name = 'app-tracker/events_list.html'
+    table_class = EventTable
+
+    def post(self, request):
+        if request.method == 'POST':
+            form = self.form_class(request.POST)
+            table = EventTable(Event.objects.filter(user=self.request.user))
+            if form.is_valid():
+                for item in request.POST:
+                    if item.startswith('selected_events'):
+                        selected_events = request.POST.get(item, None)
+                        Event.objects.get(id=selected_events).delete()
+                return HttpResponseRedirect(f"../events/", {'form': form})
+            return render(request, "app-tracker/events_list_by_date.html", {"form": form, "table": table})
+
+
+class EventDeleteView(DeleteView):
+    # Delete view for deleting individual event
+    template_name = 'app-tracker/delete.html'
+    model = Event
+    success_url = reverse_lazy("events/")
+
+    def get(self, request, pk):
+        if request.method == 'GET':
+            event = get_object_or_404(Event, pk=pk)
+            event.delete()
+            return HttpResponseRedirect('../../events')
+        return redirect(request, "app-tracker/events_list_by_date.html")
+
+
 def send_email(user_email, user_name):
     # Send event notification to user
     emailMessage = render_to_string('app-tracker/email.html',
@@ -182,3 +214,5 @@ def send_email(user_email, user_name):
     email.fail_silently = False
     email.send()
     return
+
+
