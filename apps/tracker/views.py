@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, DeleteView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 
-from .forms import UserRegisterForm, DateForm, DeleteEventsForm
+from .forms import UserRegisterForm, DateForm, DeleteEventsForm, DeletePhotosForm
 from .models import Event
 from .tables import EventTable, PhotoTable
 
@@ -79,6 +79,39 @@ class PhotoDetailView(LoginRequiredMixin, generic.DetailView):
     model = Event
     context_object_name = 'event'
     template_name = "app-tracker/photo_detail.html"
+
+
+class PhotosDeleteView(CreateView, SingleTableView, SingleTableMixin):
+    # Form view for deleting selected photos with checkbox
+    form_class = DeletePhotosForm
+    template_name = 'app-tracker/photos_list.html'
+    table_class = PhotoTable
+
+    def post(self, request):
+        if request.method == 'POST':
+            form = self.form_class(request.POST)
+            table = PhotoTable(Event.objects.filter(user=self.request.user))
+            if form.is_valid():
+                for item in request.POST:
+                    if item.startswith('selected_photos'):
+                        selected_photos = request.POST.get(item, None)
+                        Event.objects.get(id=selected_photos).delete()
+                return HttpResponseRedirect(f"../photos/", {'form': form})
+            return render(request, "app-tracker/photos_list.html", {"form": form, "table": table})
+
+
+class PhotoDeleteView(DeleteView):
+    # Delete view for deleting individual event
+    template_name = 'app-tracker/delete.html'
+    model = Event
+    success_url = reverse_lazy("photos/")
+
+    def get(self, request, pk):
+        if request.method == 'GET':
+            event = get_object_or_404(Event, pk=pk)
+            event.delete()
+            return HttpResponseRedirect('../../photos')
+        return redirect(request, "app-tracker/photos_list.html")
 
 
 class EventDetailView(LoginRequiredMixin, generic.DetailView):
