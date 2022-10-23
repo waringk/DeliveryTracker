@@ -20,6 +20,9 @@ class UserRegisterForm(UserCreationForm):
             "email",
         ]
 
+class DeletePhotosForm(forms.Form):
+    # Adds checkboxes to Photos
+    selected_photos = forms.BooleanField(required=False, initial=False)
 
 class DateInput(forms.DateInput):
     # Date Input for selecting Events by date
