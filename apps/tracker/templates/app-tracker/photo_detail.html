@@ -10,6 +10,10 @@
       <h5 class="card-title">Photo Taken at {{ event.created }}</h5>
       <p class="card-text">Location: <a href="">{{ event.photo }}</p>
       <p class="card-text"><small class="text-muted">User:</strong> {{ event.user }}</small></p>
+      <form action="{% url 'delete_photo' event.id %}" method="GET">
+        {% csrf_token %}
+        <input type="submit" value="Delete" class="btn btn-success"/>
+      </form>
     </div>
   </div>
 {% else %}
