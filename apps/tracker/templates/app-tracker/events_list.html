@@ -5,47 +5,6 @@
 
 {% block content %}
 
-
-<script>
-<!--Finds all checkboxes to toggle select all button-->
-    function clickHandler() {
-      var selected=document.getElementsByTagName('input');
-      for (var i=0; i<selected.length; ++i) {
-        if (selected[i].name.startsWith("selected_events")) {
-          if (selected[i].checked) {
-            selected[i].checked=false;
-          } else {
-            selected[i].checked=true;
-          }
-          selected[i].onchange();
-        }
-      }
-    }
-
-<!--Finds all checkboxes to enable or disable delete button-->
-    function buttonChangeHandler(button){
-      if(button.checked) {
-          deletebtn.disabled=false;
-        } else {
-          var selected=document.getElementsByTagName('input');
-          var selectedExists = true;
-          for (var i=0; i<=selected.length; ++i) {
-            if (selected[i] && selected[i].type != null &&
-            selected[i].type=='checkbox' && selected[i].name.startsWith("selected_events")) {
-              if (selected[i].checked) {
-                selectedExists = false;
-                break;
-              }
-            }
-          }
-          if (selectedExists){
-            deletebtn.disabled=true;
-          }
-        }
-    }
-</script>
-
-
   {% if user.is_authenticated %}
     <p></p>
     <p></p>
@@ -59,7 +18,7 @@
     <form action="{% url 'events_delete' %}" method="post">
       {% csrf_token %}
       <input type="submit"  value="Delete Events" id="deletebtn" disabled>
-      <input onclick="clickHandler()" type="button" value="Select All Events">
+      <input onclick="eventClickHandler()" type="button" value="Select All Events">
       <p></p>
       <p></p>
 
