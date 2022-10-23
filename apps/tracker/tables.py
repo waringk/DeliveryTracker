@@ -36,13 +36,13 @@ class PhotoTable(tables.Table):
 class EventTable(tables.Table):
     # Creates the columns for model attributes
     id = tables.Column()
-    selected_events = tables.Column(empty_values=())
+    selected_events = tables.Column(empty_values=(), verbose_name= '')
     photo = tables.Column()
     created = tables.Column()
     user = tables.Column()
     autocheck = False
     delete = TemplateColumn('<a href="{% url "delete_event" record.id %}" type="submit" class="btn '
-                            'btn-success">Delete</a>')
+                           'btn-success">Delete</a>',  verbose_name= '')
 
     def __init__(self, *args, **kwargs):
         super(EventTable, self).__init__(*args, **kwargs)
