@@ -81,7 +81,7 @@ class PhotoDetailView(LoginRequiredMixin, generic.DetailView):
     template_name = "app-tracker/photo_detail.html"
 
 
-class PhotosDeleteView(CreateView, SingleTableView, SingleTableMixin):
+class PhotosDeleteView(LoginRequiredMixin, CreateView, SingleTableView, SingleTableMixin):
     # Form view for deleting selected photos with checkbox
     form_class = DeletePhotosForm
     template_name = 'app-tracker/photos_list.html'
@@ -100,7 +100,7 @@ class PhotosDeleteView(CreateView, SingleTableView, SingleTableMixin):
             return render(request, "app-tracker/photos_list.html", {"form": form, "table": table})
 
 
-class PhotoDeleteView(DeleteView):
+class PhotoDeleteView(LoginRequiredMixin, DeleteView):
     # Delete view for deleting individual event
     template_name = 'app-tracker/delete.html'
     model = Event
@@ -201,7 +201,7 @@ class EventsByDateFormResultsView(LoginRequiredMixin, CreateView, SingleTableVie
                           {"form": form, "table": table})
 
 
-class EventsDeleteView(CreateView, SingleTableView, SingleTableMixin):
+class EventsDeleteView(LoginRequiredMixin, CreateView, SingleTableView, SingleTableMixin):
     # Form view for deleting selected events with checkbox
     form_class = DeleteEventsForm
     template_name = 'app-tracker/events_list.html'
@@ -220,7 +220,7 @@ class EventsDeleteView(CreateView, SingleTableView, SingleTableMixin):
             return render(request, "app-tracker/events_list_by_date.html", {"form": form, "table": table})
 
 
-class EventDeleteView(DeleteView):
+class EventDeleteView(LoginRequiredMixin, DeleteView):
     # Delete view for deleting individual event
     template_name = 'app-tracker/delete.html'
     model = Event
