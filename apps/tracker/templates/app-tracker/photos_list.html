@@ -5,20 +5,16 @@
 
 {% block content %}
   {% if user.is_authenticated %}
+    <h2>Photos : {{ table.rows|length }}</h2>
     <form action="{% url 'photos_delete' %}" method="post">
       {% csrf_token %}
       <input type="submit"  value="Delete Photos" id="deletebtn" disabled>
       <input onclick="photoClickHandler()" type="button" value="Select All Photos">
       <p></p>
       <p></p>
-
-
-    <h2>Photos : {{ table.rows|length }}</h2>
     {% render_table table %}
     </form>
   {% else %}
     <p>Welcome to the Delivery Tracker! Please log in.</p>
   {% endif %}
-
-
 {% endblock content %}

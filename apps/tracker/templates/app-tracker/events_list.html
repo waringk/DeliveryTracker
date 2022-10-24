@@ -4,8 +4,8 @@
 {% block title %}Events{% endblock title %}
 
 {% block content %}
-
   {% if user.is_authenticated %}
+    <h2>Events : {{ table.rows|length }}</h2>
     <p></p>
     <p></p>
     Select By Date <form action="/events_by_date/" method="post">{% csrf_token %}
@@ -14,19 +14,14 @@
     </form>
     <p></p>
     <p></p>
-
     <form action="{% url 'events_delete' %}" method="post">
       {% csrf_token %}
       <input type="submit"  value="Delete Events" id="deletebtn" disabled>
       <input onclick="eventClickHandler()" type="button" value="Select All Events">
       <p></p>
       <p></p>
-
-
-    <h2>Events : {{ table.rows|length }}</h2>
-    {% render_table table %}
-          </form>
-
+      {% render_table table %}
+    </form>
   {% else %}
     <p>Welcome to the Delivery Tracker! Please log in.</p>
   {% endif %}

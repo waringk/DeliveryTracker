@@ -84,7 +84,7 @@ class EventTable(tables.Table):
         model = Event
         template_name = "django_tables2/bootstrap4.html"
         sequence = ("selected_events", "photo", "created", "user")
-        fields = ("photo", "created", "user","selected_events")
+        fields = ("photo", "created", "user", "selected_events")
         exclude = ("id",)
         empty_text = "No data available."
         # Have headers stay at the top
