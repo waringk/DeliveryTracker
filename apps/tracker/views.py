@@ -4,21 +4,26 @@ from datetime import datetime
 import cv2
 import numpy as np
 from django.conf import settings
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, \
+    SetPasswordForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordChangeView, PasswordResetView, \
+    PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views import generic, View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, DeleteView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 
-from .forms import UserRegisterForm, DateForm, DeleteEventsForm, DeletePhotosForm
+from .forms import UserRegisterForm, DateForm, DeleteEventsForm, \
+    DeletePhotosForm
 from .models import Event
 from .tables import EventTable, PhotoTable
 
@@ -34,6 +39,49 @@ class SignUpView(CreateView):
     # Redirect the user to the login page after signing up successfully.
     success_url = reverse_lazy("login")
     template_name = "registration/signup.html"
+
+
+class PasswordsChangeView(PasswordChangeView):
+    # Use the new password change template and redirects to
+    # the password_success page after successfully changing password.
+    form_class = PasswordChangeForm
+    success_url = reverse_lazy("password_success")
+
+
+class PasswordsResetView(PasswordResetView):
+    # Creates the form to submit our email and sends the custom email
+    # template with the password reset link.
+    form_class = PasswordResetForm
+    template_name = "registration/reset_password.html"
+    subject_template_name = "registration/reset_password_subject.txt"
+    email_template_name = "registration/reset_password_email.html"
+
+
+class PasswordsResetDoneView(PasswordResetDoneView):
+    # Redirects the user to a page that lets the user know that the
+    # reset email was sent.
+    template_name = "registration/reset_password_done.html'"
+
+
+class PasswordsResetConfirmView(PasswordResetConfirmView):
+    # Links to the reset password link in the email.
+    form_class = SetPasswordForm
+    template_name = "registration/reset_password_confirm.html"
+
+
+class PasswordsResetCompleteView(PasswordResetCompleteView):
+    # Redirects the user to the password reset success message page.
+    template_name = "registration/reset_password_complete.html"
+
+
+def password_success(request):
+    # Renders the password_success template.
+    return render(request, 'registration/password_success.html')
+
+
+def reset_password(request):
+    # Renders the reset_password template.
+    return render(request, 'registration/reset_password.html')
 
 
 @csrf_exempt
@@ -81,7 +129,8 @@ class PhotoDetailView(LoginRequiredMixin, generic.DetailView):
     template_name = "app-tracker/photo_detail.html"
 
 
-class PhotosDeleteView(LoginRequiredMixin, CreateView, SingleTableView, SingleTableMixin):
+class PhotosDeleteView(LoginRequiredMixin, CreateView, SingleTableView,
+                       SingleTableMixin):
     # Form view for deleting selected photos with checkbox
     form_class = DeletePhotosForm
     template_name = 'app-tracker/photos_list.html'
@@ -97,7 +146,8 @@ class PhotosDeleteView(LoginRequiredMixin, CreateView, SingleTableView, SingleTa
                         selected_photos = request.POST.get(item, None)
                         Event.objects.get(id=selected_photos).delete()
                 return HttpResponseRedirect(f"../photos/", {'form': form})
-            return render(request, "app-tracker/photos_list.html", {"form": form, "table": table})
+            return render(request, "app-tracker/photos_list.html",
+                          {"form": form, "table": table})
 
 
 class PhotoDeleteView(LoginRequiredMixin, DeleteView):
@@ -174,7 +224,8 @@ class EventsByDateFormView(LoginRequiredMixin, View, SingleTableMixin):
         return render(request, self.template_name, {'form': form})
 
 
-class EventsByDateFormResultsView(LoginRequiredMixin, CreateView, SingleTableView):
+class EventsByDateFormResultsView(LoginRequiredMixin, CreateView,
+                                  SingleTableView):
     # Results of selecting Events by date with calendar widget
     redirect_field_name = 'redirect_to'
     form_class = DateForm
@@ -201,7 +252,8 @@ class EventsByDateFormResultsView(LoginRequiredMixin, CreateView, SingleTableVie
                           {"form": form, "table": table})
 
 
-class EventsDeleteView(LoginRequiredMixin, CreateView, SingleTableView, SingleTableMixin):
+class EventsDeleteView(LoginRequiredMixin, CreateView, SingleTableView,
+                       SingleTableMixin):
     # Form view for deleting selected events with checkbox
     form_class = DeleteEventsForm
     template_name = 'app-tracker/events_list.html'
@@ -217,7 +269,8 @@ class EventsDeleteView(LoginRequiredMixin, CreateView, SingleTableView, SingleTa
                         selected_events = request.POST.get(item, None)
                         Event.objects.get(id=selected_events).delete()
                 return HttpResponseRedirect(f"../events/", {'form': form})
-            return render(request, "app-tracker/events_list_by_date.html", {"form": form, "table": table})
+            return render(request, "app-tracker/events_list_by_date.html",
+                          {"form": form, "table": table})
 
 
 class EventDeleteView(LoginRequiredMixin, DeleteView):
@@ -247,5 +300,3 @@ def send_email(user_email, user_name):
     email.fail_silently = False
     email.send()
     return
-
-
