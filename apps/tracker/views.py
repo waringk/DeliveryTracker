@@ -4,11 +4,12 @@ from datetime import datetime
 import cv2
 import numpy as np
 from django.conf import settings
-from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, \
+    SetPasswordForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeView, PasswordResetView, \
-    PasswordResetDoneView
+    PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
@@ -48,14 +49,29 @@ class PasswordsChangeView(PasswordChangeView):
 
 
 class PasswordsResetView(PasswordResetView):
-    # Use the new reset password form.
+    # Creates the form to submit our email and sends the custom email
+    # template with the password reset link.
     form_class = PasswordResetForm
+    template_name = "registration/reset_password.html"
+    subject_template_name = "registration/reset_password_subject.txt"
+    email_template_name = "registration/reset_password_email.html"
 
 
 class PasswordsResetDoneView(PasswordResetDoneView):
-    # Redirects the user to the custom reset_password_done template after
-    # successfully entering their email for password reset.
+    # Redirects the user to a page that lets the user know that the
+    # reset email was sent.
     template_name = "registration/reset_password_done.html'"
+
+
+class PasswordsResetConfirmView(PasswordResetConfirmView):
+    # Links to the reset password link in the email.
+    form_class = SetPasswordForm
+    template_name = "registration/reset_password_confirm.html"
+
+
+class PasswordsResetCompleteView(PasswordResetCompleteView):
+    # Redirects the user to the password reset success message page.
+    template_name = "registration/reset_password_complete.html"
 
 
 def password_success(request):
