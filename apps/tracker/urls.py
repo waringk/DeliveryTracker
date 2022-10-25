@@ -11,7 +11,7 @@ urlpatterns = [
     path('reset_password/', views.PasswordsResetView.as_view(
         template_name="registration/reset_password.html")),
     path('reset_password', views.reset_password, name='reset_password'),
-    path('password_reset/done/',
+    path('reset_password/done/',
          views.PasswordsResetDoneView.as_view(
              template_name="registration/reset_password_done.html"),
          name="password_reset_done"),
