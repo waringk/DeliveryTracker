@@ -7,7 +7,8 @@ from django.conf import settings
 from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.contrib.auth.views import PasswordChangeView, PasswordResetView
+from django.contrib.auth.views import PasswordChangeView, PasswordResetView, \
+    PasswordResetDoneView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
@@ -47,10 +48,14 @@ class PasswordsChangeView(PasswordChangeView):
 
 
 class PasswordsResetView(PasswordResetView):
-    # Use the new reset password form and redirects to the login page
-    # after successfully resetting the password.
+    # Use the new reset password form.
     form_class = PasswordResetForm
-    success_url = reverse_lazy("login")
+
+
+class PasswordsResetDoneView(PasswordResetDoneView):
+    # Redirects the user to the custom reset_password_done template after
+    # successfully entering their email for password reset.
+    template_name = "registration/reset_password_done.html'"
 
 
 def password_success(request):
