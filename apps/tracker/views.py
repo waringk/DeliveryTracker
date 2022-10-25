@@ -4,10 +4,10 @@ from datetime import datetime
 import cv2
 import numpy as np
 from django.conf import settings
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.contrib.auth.views import PasswordChangeView
+from django.contrib.auth.views import PasswordChangeView, PasswordResetView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
@@ -46,9 +46,21 @@ class PasswordsChangeView(PasswordChangeView):
     success_url = reverse_lazy("password_success")
 
 
+class PasswordsResetView(PasswordResetView):
+    # Use the new reset password form and redirects to the login page
+    # after successfully resetting the password.
+    form_class = PasswordResetForm
+    success_url = reverse_lazy("login")
+
+
 def password_success(request):
     # Renders the password_success template.
     return render(request, 'registration/password_success.html')
+
+
+def reset_password(request):
+    # Renders the reset_password template.
+    return render(request, 'registration/reset_password.html')
 
 
 @csrf_exempt
