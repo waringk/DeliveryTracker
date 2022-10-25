@@ -7,6 +7,9 @@ urlpatterns = [
     path('change_password/', views.PasswordsChangeView.as_view(
         template_name="registration/change_password.html")),
     path('password_success', views.password_success, name='password_success'),
+    path('reset_password/', views.PasswordsResetView.as_view(
+        template_name="registration/reset_password.html")),
+    path('reset_password', views.reset_password, name='reset_password'),
     path('', views.HomePageView.as_view(), name='home'),
     path('uploadFrame/', views.upload_frame, name='uploadFrame'),
     path('events/', views.EventListView.as_view(), name='events'),
