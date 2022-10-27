@@ -24,7 +24,7 @@ from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 
 from .forms import UserRegisterForm, DateForm, DeleteEventsForm, \
     DeletePhotosForm
-from .models import Event
+from .models import Event, UserDevice
 from .tables import EventTable, PhotoTable
 
 
@@ -93,14 +93,9 @@ def upload_frame(request):
         ret, jpg_frame = cv2.imencode('.jpg', arrayFrame)
         content = ContentFile(jpg_frame.tobytes())
 
-        # get user
-        try:
-            # passing the pk is temporary, will update in later iteration
-            user = User.objects.get(pk=data['param'])
-        except ObjectDoesNotExist:
-            HttpResponse.status_code = 404
-            HttpResponse.reason_phrase = 'User not found. Register device'
-            return HttpResponse()
+        # use UUID to verify device and locate user
+        user_device = get_object_or_404(UserDevice, uuid=data['param'])
+        user = get_object_or_404(User, pk=user_device.user.pk)
 
         # create new image instance and save in db
         eventInstance = Event(user=user)
