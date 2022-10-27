@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
 from django.utils import timezone
+from django.dispatch import receiver
 
 
 class Event(models.Model):
@@ -17,3 +19,18 @@ class Event(models.Model):
         app_label = 'tracker'
 
     objects = models.Manager()
+
+
+class UserDevice(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    uuid = models.CharField(max_length=36, null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+
+@receiver(post_save, sender=User)
+def create_user_device(sender, instance, created, **kwargs):
+    # if user successfully added to User table, create device
+    if created:
+        UserDevice.objects.create(user=instance)
