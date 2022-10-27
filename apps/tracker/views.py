@@ -94,13 +94,8 @@ def upload_frame(request):
         content = ContentFile(jpg_frame.tobytes())
 
         # use UUID to verify device and locate user
-        try:
-            user_device = UserDevice.objects.get(uuid=data['param'])
-            user = User.objects.get(pk=user_device.user.pk)
-        except ObjectDoesNotExist:
-            HttpResponse.status_code = 404
-            HttpResponse.reason_phrase = 'User not found. Register device.'
-            return HttpResponse()
+        user_device = get_object_or_404(UserDevice, uuid=data['param'])
+        user = get_object_or_404(User, pk=user_device.user.pk)
 
         # create new image instance and save in db
         eventInstance = Event(user=user)
