@@ -147,7 +147,7 @@ class PhotoListView(LoginRequiredMixin, CreateView,
                 Event.objects.filter(user=self.request.user))
         # If there are no photos for the user, renders an empty event list
         except IndexError:
-            table = EventTable(Event.objects.all())
+            table = PhotoTable(Event.objects.all())
         RequestConfig(request).configure(table)
         return render(request, self.template_name,
                       {"table": table})
