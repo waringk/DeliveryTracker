@@ -4,13 +4,13 @@ from datetime import datetime
 import cv2
 import numpy as np
 from django.conf import settings
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, \
     SetPasswordForm
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeView, PasswordResetView, \
     PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseRedirect
@@ -23,7 +23,7 @@ from django.views.generic import CreateView, TemplateView, DeleteView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 
 from .forms import UserRegisterForm, DateForm, DeleteEventsForm, \
-    DeletePhotosForm
+    DeletePhotosForm, UserDeviceForm
 from .models import Event, UserDevice
 from .tables import EventTable, PhotoTable
 
@@ -33,15 +33,36 @@ class HomePageView(TemplateView):
     template_name = "app-tracker/home.html"
 
 
-class SignUpView(CreateView):
-    # Use UserRegisterForm for the signup view.
-    form_class = UserRegisterForm
-    # Redirect the user to the login page after signing up successfully.
-    success_url = reverse_lazy("login")
-    template_name = "registration/signup.html"
+def signup(request):
+    # Renders a registration page with the user registration and device
+    # registration forms.
+    if request.method == 'POST':
+        # Use UserRegisterForm and UserDeviceForm for the signup view.
+        form = UserRegisterForm(request.POST)
+        device_form = UserDeviceForm(request.POST)
+        if form.is_valid() and device_form.is_valid():
+            user = form.save()
+
+            # Create a device object, but not save it yet
+            device = device_form.save(commit=False)
+            device.user = user
+
+            device.save()
+
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserRegisterForm()
+        device_form = UserDeviceForm()
+
+    context = {"form": form, "device_form": device_form}
+    return render(request, "registration/signup.html", context)
 
 
-class PasswordsChangeView(PasswordChangeView):
+class PasswordsChangeView(LoginRequiredMixin, PasswordChangeView):
     # Use the new password change template and redirects to
     # the password_success page after successfully changing password.
     form_class = PasswordChangeForm
@@ -110,26 +131,55 @@ def upload_frame(request):
     return HttpResponse('Upload successful')
 
 
-class PhotoListView(LoginRequiredMixin, SingleTableView):
-    # Shows a list of photos
+class PhotoListView(LoginRequiredMixin, CreateView,
+                    SingleTableView):
+    # Renders a table with all the photos of a user. By default,
+    # displays user's most recent uploaded date of photo(s).
     model = Event
     table_class = PhotoTable
     template_name = 'app-tracker/photos_list.html'
 
+    # Get all the photos of the current user and add it to the table.
+    def get(self, request):
+        try:
+            # Get all the tables of the current user
+            table = PhotoTable(
+                Event.objects.filter(user=self.request.user))
+        # If there are no photos for the user, renders an empty event list
+        except IndexError:
+            table = PhotoTable(Event.objects.all())
+        RequestConfig(request).configure(table)
+        return render(request, self.template_name,
+                      {"table": table})
 
-class PhotoDetailView(LoginRequiredMixin, generic.DetailView):
+
+class PhotoDetailView(LoginRequiredMixin, UserPassesTestMixin,
+                      generic.DetailView):
     # Template for user to view an individual photo.
     model = Event
     context_object_name = 'event'
     template_name = "app-tracker/photo_detail.html"
 
+    # Checks if the photo belongs to the correct user.
+    def test_func(self):
+        # new
+        event = self.get_object()
+        return event.user == self.request.user
 
-class PhotosDeleteView(LoginRequiredMixin, CreateView, SingleTableView,
+
+class PhotosDeleteView(LoginRequiredMixin, UserPassesTestMixin, CreateView,
+                       SingleTableView,
                        SingleTableMixin):
     # Form view for deleting selected photos with checkbox
     form_class = DeletePhotosForm
     template_name = 'app-tracker/photos_list.html'
     table_class = PhotoTable
+
+    # Checks if the photo belongs to the correct user.
+    def test_func(self):
+        # new
+        event = self.get_object()
+        return event.user == self.request.user
 
     def post(self, request):
         if request.method == 'POST':
@@ -145,11 +195,17 @@ class PhotosDeleteView(LoginRequiredMixin, CreateView, SingleTableView,
                           {"form": form, "table": table})
 
 
-class PhotoDeleteView(LoginRequiredMixin, DeleteView):
+class PhotoDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     # Delete view for deleting individual event
     template_name = 'app-tracker/delete.html'
     model = Event
     success_url = reverse_lazy("photos/")
+
+    # Checks if the photo belongs to the correct user.
+    def test_func(self):
+        # new
+        event = self.get_object()
+        return event.user == self.request.user
 
     def get(self, request, pk):
         if request.method == 'GET':
@@ -159,14 +215,22 @@ class PhotoDeleteView(LoginRequiredMixin, DeleteView):
         return redirect(request, "app-tracker/photos_list.html")
 
 
-class EventDetailView(LoginRequiredMixin, generic.DetailView):
+class EventDetailView(LoginRequiredMixin, UserPassesTestMixin,
+                      generic.DetailView):
     # Template for user to view an individual event.
     model = Event
     context_object_name = 'event'
     template_name = "app-tracker/event_detail.html"
 
+    # Checks if the photo belongs to the correct user.
+    def test_func(self):
+        # new
+        event = self.get_object()
+        return event.user == self.request.user
 
-class EventListView(LoginRequiredMixin, CreateView, SingleTableView):
+
+class EventListView(LoginRequiredMixin, CreateView,
+                    SingleTableView):
     # View for user to view their events in a table format
     # By Default - Displays user's most recent uploaded date of photo(s)
     model = Event
@@ -194,7 +258,8 @@ class EventListView(LoginRequiredMixin, CreateView, SingleTableView):
                       {"form": form, "table": table})
 
 
-class EventsByDateFormView(LoginRequiredMixin, View, SingleTableMixin):
+class EventsByDateFormView(LoginRequiredMixin, View,
+                           SingleTableMixin):
     # Form view for selecting displayed Events by date with calendar widget
     form_class = DateForm
     initial = {'events': Event.objects.all()}
@@ -219,7 +284,8 @@ class EventsByDateFormView(LoginRequiredMixin, View, SingleTableMixin):
         return render(request, self.template_name, {'form': form})
 
 
-class EventsByDateFormResultsView(LoginRequiredMixin, CreateView,
+class EventsByDateFormResultsView(LoginRequiredMixin,
+                                  CreateView,
                                   SingleTableView):
     # Results of selecting Events by date with calendar widget
     redirect_field_name = 'redirect_to'
@@ -247,12 +313,19 @@ class EventsByDateFormResultsView(LoginRequiredMixin, CreateView,
                           {"form": form, "table": table})
 
 
-class EventsDeleteView(LoginRequiredMixin, CreateView, SingleTableView,
+class EventsDeleteView(LoginRequiredMixin, UserPassesTestMixin, CreateView,
+                       SingleTableView,
                        SingleTableMixin):
     # Form view for deleting selected events with checkbox
     form_class = DeleteEventsForm
     template_name = 'app-tracker/events_list.html'
     table_class = EventTable
+
+    # Checks if the photo belongs to the correct user.
+    def test_func(self):
+        # new
+        event = self.get_object()
+        return event.user == self.request.user
 
     def post(self, request):
         if request.method == 'POST':
@@ -268,11 +341,17 @@ class EventsDeleteView(LoginRequiredMixin, CreateView, SingleTableView,
                           {"form": form, "table": table})
 
 
-class EventDeleteView(LoginRequiredMixin, DeleteView):
+class EventDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     # Delete view for deleting individual event
     template_name = 'app-tracker/delete.html'
     model = Event
     success_url = reverse_lazy("events/")
+
+    # Checks if the photo belongs to the correct user.
+    def test_func(self):
+        # new
+        event = self.get_object()
+        return event.user == self.request.user
 
     def get(self, request, pk):
         if request.method == 'GET':

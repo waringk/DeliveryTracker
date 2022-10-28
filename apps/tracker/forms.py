@@ -1,24 +1,44 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib.admin.widgets import AdminDateWidget
-from django.forms import ModelForm, Form
-from django.urls import reverse
-from django.utils.safestring import mark_safe
+from django.forms import ModelForm
 
-from .models import Event
+from .models import Event, UserDevice
 
 
 class UserRegisterForm(UserCreationForm):
-    # Add an email field to the UserRegisterForm class.
+    # Custom user registration field with email.
     email = forms.EmailField()
 
     class Meta:
         model = User
-        fields = [
+        fields = (
             "username",
             "email",
-        ]
+            "password1",
+            "password2",
+        )
+
+    def save(self, commit=True):
+        # Overrides the save method to add the email field before saving
+        # to the database.
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+
+        if commit:
+            user.save()
+        return user
+
+
+class UserDeviceForm(forms.ModelForm):
+    # Adds the UUID field to register a device in the User registration
+    # form.
+    uuid = forms.CharField(max_length=100,
+                           help_text='Please enter your PYNQ-Z2 device ID.')
+
+    class Meta:
+        model = UserDevice
+        fields = ('uuid',)
 
 
 class DeletePhotosForm(forms.Form):
