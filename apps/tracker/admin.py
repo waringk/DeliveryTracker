@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Event, UserDevice
+from .models import Event, UserDevice, UserSettings
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
@@ -35,3 +35,4 @@ class AccountsUserAdmin(UserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, AccountsUserAdmin)
+admin.site.register(UserSettings)

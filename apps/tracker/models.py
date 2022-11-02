@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
-#from django.db.models.signals import post_save
+# from django.db.models.signals import post_save
 from django.utils import timezone
-#from django.dispatch import receiver
+# from django.dispatch import receiver
 
 class Event(models.Model):
     photo = models.ImageField(upload_to='images/')
@@ -23,10 +23,12 @@ class Event(models.Model):
 class UserDevice(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # uuid = models.CharField(max_length=36, null=True, blank=True)
-    uuid = models.CharField(max_length=36)
+    uuid = models.CharField(max_length=36, unique=True)
+    objects = models.Manager()
 
     def __str__(self):
         return self.user.username
+
 
 # @receiver(post_save, sender=User)
 # def create_user_device(sender, instance, created, **kwargs):
@@ -35,3 +37,11 @@ class UserDevice(models.Model):
 #         # To create a user device object
 #         UserDevice.objects.get_or_create(user=instance)
 #
+
+
+class UserSettings(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    device = models.OneToOneField(UserDevice, max_length=36, unique=True, on_delete=models.CASCADE, null=True,
+                                  related_name='user_device_id')
+    objects = models.Manager()
+

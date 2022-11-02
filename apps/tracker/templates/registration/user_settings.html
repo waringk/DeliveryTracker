@@ -1,0 +1,26 @@
+{% extends "app-tracker/base.html" %}
+	{% block content %}
+{% load static %}
+
+{% block title %}User Settings{% endblock %}
+	{% load crispy_forms_tags %}
+
+<script src="{% static 'app-tracker/js/scripts.js' %}"></script>
+<p></p>
+<h1>Hello, {{ user.username|title }}</h1>
+
+<p>Username: {{ user.username }}</p>
+<p>Name: {{ user.first_name }} {{ user.last_name }}</p>
+<p>Email: {{ user.email }}</p>
+<p>Device: {{ uuid }}</p>
+
+
+<div id="userSettingsWindow" style="display: none;" class="modal-settings">
+	<div class="modal-box">
+		<span class="close" onclick="closeModalBox()">x</span>
+{% crispy form %}
+</div>
+</div>
+<button onclick="userSettingsWindowHandler()">Edit</button>
+
+{% endblock %}

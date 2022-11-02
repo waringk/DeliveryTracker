@@ -4,7 +4,8 @@ from datetime import datetime
 import cv2
 import numpy as np
 from django.conf import settings
-from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, \
     SetPasswordForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -13,7 +14,7 @@ from django.contrib.auth.views import PasswordChangeView, PasswordResetView, \
     PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -22,9 +23,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, DeleteView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 
-from .forms import UserRegisterForm, DateForm, DeleteEventsForm, \
-    DeletePhotosForm, UserDeviceForm
-from .models import Event, UserDevice
+from .forms import UserRegisterForm, DateForm, DeleteEventsForm, DeletePhotosForm,\
+    UserDeviceForm, UserSettingsForm
+from .models import Event, UserDevice, UserSettings
 from .tables import EventTable, PhotoTable
 
 
@@ -111,6 +112,30 @@ def password_success(request):
 def reset_password(request):
     # Renders the reset_password template.
     return render(request, 'registration/reset_password.html')
+
+
+def UserSettingsView(request, username):
+    # View for User to update their User Settings
+
+    # If the user updates their info, submit the entered form
+    if request.method == 'POST':
+        user = request.user
+        user_form = UserSettingsForm(request.POST, instance=user)
+        if user_form.is_valid():
+            saved_user_settings = user_form.save()
+            return redirect('/../user_settings/'+str(user.username))
+
+    # Otherwise, fetch the user's personal info and device ID in the form
+    try:
+        user = get_user_model().objects.filter(username=username).first()
+        if user:
+            device_form = UserDeviceForm()
+            form = UserSettingsForm(instance=user)
+            return render(request, 'registration/user_settings.html', context={'form': form, 'device_form': device_form,
+                                                                               'uuid': form.initial['uuid']})
+    except User.DoesNotExist:
+         raise Http404("Given user not found")
+    return redirect("registration/user_settings.html")
 
 
 @csrf_exempt
