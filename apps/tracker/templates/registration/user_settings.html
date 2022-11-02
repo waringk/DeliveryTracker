@@ -18,7 +18,14 @@
 <div id="userSettingsWindow" style="display: none;" class="modal-settings">
 	<div class="modal-box">
 		<span class="close" onclick="closeModalBox()">x</span>
-{% crispy form %}
+  <form method="post">
+    {% csrf_token %}
+    {{ user_form|crispy }}
+    {{ device_form|crispy }}
+
+    <button class="btn btn-success" type="submit">Update</button>
+  </form>
+
 </div>
 </div>
 <button onclick="userSettingsWindowHandler()">Edit</button>

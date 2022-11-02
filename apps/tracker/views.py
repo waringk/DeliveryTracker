@@ -23,9 +23,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, DeleteView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 
-from .forms import UserRegisterForm, DateForm, DeleteEventsForm, DeletePhotosForm,\
-    UserDeviceForm, UserSettingsForm
-from .models import Event, UserDevice, UserSettings
+from .forms import UserRegisterForm, DateForm, DeleteEventsForm, DeletePhotosForm, \
+    UserDeviceForm, UserForm
+from .models import Event, UserDevice
 from .tables import EventTable, PhotoTable
 
 
@@ -38,42 +38,28 @@ def signup(request):
     # Renders a registration page with the user registration and device
     # registration forms.
     if request.method == 'POST':
-        print('hello world')
         # Use UserRegisterForm and UserDeviceForm for the signup view.
         form = UserRegisterForm(request.POST)
         device_form = UserDeviceForm(request.POST)
-        settings_form = UserSettingsForm(request.POST)
-        if form.is_valid() and device_form.is_valid() and settings_form.is_valid():
-            print('1')
+        if form.is_valid() and device_form.is_valid():
             user = form.save()
 
             # Create a device object, but not save it yet
             device = device_form.save(commit=False)
             device.user = user
-            print('value 1', device.uuid)
-            print('value 2', device.user.pk)
+
             device.save()
-
-            print('abc1')
-            settings_form.instance.id = user.pk
-            settings = settings_form.save(commit=False)
-            print('abc2')
-            #settings_form.uuid = device
-            settings.save()
-
 
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
-            print(username)
             user = authenticate(username=username, password=password)
             login(request, user)
             return redirect('home')
     else:
         form = UserRegisterForm()
         device_form = UserDeviceForm()
-        settings_form = UserSettingsForm()
 
-    context = {"form": form, "device_form": device_form, "settings_form": settings_form}
+    context = {"form": form, "device_form": device_form}
     return render(request, "registration/signup.html", context)
 
 
@@ -134,19 +120,27 @@ def UserSettingsView(request, username):
     # If the user updates their info, submit the entered form
     if request.method == 'POST':
         user = request.user
-        user_form = UserSettingsForm(request.POST, instance=user)
-        if user_form.is_valid():
+        user_form = UserForm(request.POST, instance=user)
+        new_device = UserDevice.objects.get(user_id=user.id)
+        device_form = UserDeviceForm(request.POST, instance=new_device)
+
+        if user_form.is_valid() and device_form.is_valid():
             saved_user_settings = user_form.save()
+            saved_device_settings = device_form.save(commit=False)
+            saved_device_settings.uuid = device_form.cleaned_data['uuid']
+            saved_device_settings.user_id = user.pk
+            saved_device_settings.save()
             return redirect('/../user_settings/'+str(user.username))
 
     # Otherwise, fetch the user's personal info and device ID in the form
     try:
         user = get_user_model().objects.filter(username=username).first()
         if user:
-            device_form = UserDeviceForm()
-            form = UserSettingsForm(instance=user)
-            return render(request, 'registration/user_settings.html', context={'form': form, 'device_form': device_form,
-                                                                               'uuid': form.initial['uuid']})
+            device_form = UserDeviceForm(instance=user)
+            user_form = UserForm(instance=user)
+            return render(request, 'registration/user_settings.html', context={'user_form': user_form,
+                                                                               'device_form': device_form,
+                                                                               'uuid':device_form.initial['uuid']})
     except User.DoesNotExist:
          raise Http404("Given user not found")
     return redirect("registration/user_settings.html")

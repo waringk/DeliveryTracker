@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 # from django.dispatch import receiver
 
+
 class Event(models.Model):
     photo = models.ImageField(upload_to='images/')
     created = models.DateTimeField(default=timezone.now)
@@ -27,7 +28,7 @@ class UserDevice(models.Model):
     objects = models.Manager()
 
     def __str__(self):
-        return self.user.username
+        return self.user.username+'/'+self.uuid
 
 
 # @receiver(post_save, sender=User)
@@ -38,10 +39,4 @@ class UserDevice(models.Model):
 #         UserDevice.objects.get_or_create(user=instance)
 #
 
-
-class UserSettings(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    device = models.OneToOneField(UserDevice, max_length=36, unique=True, on_delete=models.CASCADE, null=True,
-                                  related_name='user_device_id')
-    objects = models.Manager()
 
