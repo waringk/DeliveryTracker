@@ -59,7 +59,7 @@ class UserSettingsForm(forms.ModelForm):
     # Form for storing User's personal information and User's device ID
     first_name = forms.CharField(max_length=100, required=False,widget=forms.TextInput(attrs={'class': 'form-control'}))
     last_name = forms.CharField(max_length=100, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    uuid = forms.CharField(max_length=36, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+
 
     def __init__(self, *args, **kwargs):
         # Uses django-crispy-forms FormHelper to render form, submit & post method
@@ -68,23 +68,28 @@ class UserSettingsForm(forms.ModelForm):
         self.helper.add_input(Submit('submit', 'Submit', css_class='btn-primary'))
         self.helper.form_method = 'POST'
 
+        found_user = None
         # Get the current user's info from User model
-        found_user = get_object_or_404(User, id=self.instance.id)
+        try:
+            found_user = get_object_or_404(User, id=self.instance.id)
+        except Http404:
+            print('jk')
 
         if found_user:
             # Get the user's personal information
             self.initial['first_name'] = found_user.first_name
             self.initial['last_name'] = found_user.last_name
 
-            # Get the current user's device ID
-            try:
-                self.initial['uuid'] = UserDevice.objects.get(user_id=self.instance.id).uuid
-            except UserDevice.DoesNotExist:
-                raise Http404("Given device not found")
+            # # Get the current user's device ID
+            # try:
+            #     self.initial['uuid'] = UserDevice.objects.get(user_id=self.instance.id).uuid
+            # except UserDevice.DoesNotExist:
+            #     print('jk')
 
     class Meta:
         model = UserSettings
-        fields = ('first_name', 'last_name', 'uuid',)
+        #fields = ('first_name', 'last_name', 'uuid',)
+        fields = ('first_name', 'last_name', )
 
     def save(self, *args, **kwargs):
         # Overrides save method to obtain/combine User Model & User Device Model info
@@ -92,16 +97,26 @@ class UserSettingsForm(forms.ModelForm):
 
         # Get the current user's current device ID
         try:
-            found_device = UserDevice.objects.get(user_id=self.instance.id)
-            form_device = found_device
-        except UserDevice.DoesNotExist:
-            # new_device = UserDevice()
-            raise Http404("Given device not found")
+            print('user id is', self.instance.id)
+            found_device = UserDevice.objects.filter(user_id=self.instance.id)
 
-        # Get the form entered device ID
-        form_device.uuid = self.cleaned_data.get('uuid')
-        form_device.user_id = self.instance.id
-        form_device.save()
+            if len(found_device) == 1:
+
+                form_device = found_device[0]
+
+                # Get the form entered device ID
+                form_device.uuid = self.cleaned_data.get('uuid')
+                form_device.user_id = self.instance.id
+                found_device.update(uuid=form_device.uuid)
+        except UserDevice.DoesNotExist:
+            #raise Http404("Given device not found")
+            print('jk')
+            settings = settings_form.save(commit=False)
+            print('abc2')
+            # settings_form.uuid = device
+            settings.save()
+
+
 
         # Get the form entered user's personal info
         self.instance.first_name = self.cleaned_data.get('first_name')
@@ -111,12 +126,18 @@ class UserSettingsForm(forms.ModelForm):
             found_user_settings = UserSettings.objects.get(user_id=self.instance.id)
             form_user_settings = found_user_settings
         except UserSettings.DoesNotExist:
-            # new_user_settings = UserSettings()
-            raise Http404("Given user not found")
+            print('jk simmons')
+            form_user_settings = UserSettings()
+            #new_user_settings = UserSettings()
+            #raise Http404("Given user not found")
 
         # Get the form entered device and user info
         form_user_settings.device_id = form_device.id
         form_user_settings.user_id = self.instance.id
+        print('value 1,', form_user_settings.device_id)
+        print('value 2,', form_user_settings.user_id)
+        settings.device_id = form_device.id
+        settings.user_id = self.instance.id
         form_user_settings.save()
         settings.save()
         return settings

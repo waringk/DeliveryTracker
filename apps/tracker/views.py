@@ -38,28 +38,42 @@ def signup(request):
     # Renders a registration page with the user registration and device
     # registration forms.
     if request.method == 'POST':
+        print('hello world')
         # Use UserRegisterForm and UserDeviceForm for the signup view.
         form = UserRegisterForm(request.POST)
         device_form = UserDeviceForm(request.POST)
-        if form.is_valid() and device_form.is_valid():
+        settings_form = UserSettingsForm(request.POST)
+        if form.is_valid() and device_form.is_valid() and settings_form.is_valid():
+            print('1')
             user = form.save()
 
             # Create a device object, but not save it yet
             device = device_form.save(commit=False)
             device.user = user
-
+            print('value 1', device.uuid)
+            print('value 2', device.user.pk)
             device.save()
+
+            print('abc1')
+            settings_form.instance.id = user.pk
+            settings = settings_form.save(commit=False)
+            print('abc2')
+            #settings_form.uuid = device
+            settings.save()
+
 
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
+            print(username)
             user = authenticate(username=username, password=password)
             login(request, user)
             return redirect('home')
     else:
         form = UserRegisterForm()
         device_form = UserDeviceForm()
+        settings_form = UserSettingsForm()
 
-    context = {"form": form, "device_form": device_form}
+    context = {"form": form, "device_form": device_form, "settings_form": settings_form}
     return render(request, "registration/signup.html", context)
 
 
