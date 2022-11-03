@@ -12,6 +12,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeView, PasswordResetView, \
     PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -116,14 +117,14 @@ def reset_password(request):
 
 def UserSettingsView(request, username):
     # View for User to update their User Settings
-
     # If the user updates their info, submit the entered form
+    show_edit_field = 'false'
     if request.method == 'POST':
         user = request.user
         user_form = UserForm(request.POST, instance=user)
         new_device = UserDevice.objects.get(user_id=user.id)
         device_form = UserDeviceForm(request.POST, instance=new_device)
-
+        # If the form input is valid, save the new user info & device
         if user_form.is_valid() and device_form.is_valid():
             saved_user_settings = user_form.save()
             saved_device_settings = device_form.save(commit=False)
@@ -131,20 +132,22 @@ def UserSettingsView(request, username):
             saved_device_settings.user_id = user.pk
             saved_device_settings.save()
             return redirect('/../user_settings/'+str(user.username))
-
-    # Otherwise, fetch the user's personal info and device ID in the form
-    try:
-        user = get_user_model().objects.filter(username=username).first()
-        if user:
-            device_form = UserDeviceForm(instance=user)
-            user_form = UserForm(instance=user)
-            return render(request, 'registration/user_settings.html', context={'user_form': user_form,
-                                                                               'device_form': device_form,
-                                                                               'uuid':device_form.initial['uuid']})
-    except User.DoesNotExist:
-         raise Http404("Given user not found")
-    return redirect("registration/user_settings.html")
-
+        # Otherwse, display the form validation error
+        else:
+            show_edit_field = 'true'
+    # Otherwise, show the user the form
+    else:
+        try:
+            user = get_user_model().objects.filter(username=username).first()
+            if user:
+                device_form = UserDeviceForm(instance=user)
+                user_form = UserForm(instance=user)
+        except User.DoesNotExist:
+            raise Http404("Given user not found")
+    return render(request, 'registration/user_settings.html', context={'user_form': user_form,
+                                                                           'device_form': device_form,
+                                                                           'uuid':device_form.initial['uuid'],
+                                                                       'show_edit_field': show_edit_field})
 
 @csrf_exempt
 def upload_frame(request):

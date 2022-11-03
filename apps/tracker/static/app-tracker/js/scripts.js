@@ -84,6 +84,7 @@ function userSettingsWindowHandler() {
 
 // Closes the modal window when the user clicks the x
 function closeModalBox() {
-  var settings = document.getElementById("userSettingsWindow");
+    var settings = document.getElementById("userSettingsWindow");
     settings.style.display = "none";
 }
+

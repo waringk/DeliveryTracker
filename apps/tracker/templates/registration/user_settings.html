@@ -4,8 +4,15 @@
 
 {% block title %}User Settings{% endblock %}
 	{% load crispy_forms_tags %}
-
+<body onload="onError();">
 <script src="{% static 'app-tracker/js/scripts.js' %}"></script>
+<script>
+function onError() {
+    if ({{ show_edit_field }} == true)
+        userSettingsWindowHandler();
+}
+</script>
+
 <p></p>
 <h1>Hello, {{ user.username|title }}</h1>
 
