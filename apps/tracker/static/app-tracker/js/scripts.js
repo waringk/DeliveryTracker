@@ -71,3 +71,20 @@ function eventButtonChangeHandler(button) {
         }
     }
 }
+
+// Controls the display of the modal window in user settings page
+function userSettingsWindowHandler() {
+  var settings = document.getElementById("userSettingsWindow");
+  if (settings.style.display === "none") {
+    settings.style.display = "block";
+  } else {
+    settings.style.display = "none";
+  }
+}
+
+// Closes the modal window when the user clicks the x
+function closeModalBox() {
+    var settings = document.getElementById("userSettingsWindow");
+    settings.style.display = "none";
+}
+
