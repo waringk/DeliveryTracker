@@ -16,8 +16,8 @@ class PhotoTable(tables.Table):
     user = tables.Column()
     autocheck = False
     delete = TemplateColumn(
-        '<a href="{% url "delete_photo" record.id %}" type="submit" class="btn '
-        'btn-success">Delete</a>', verbose_name='')
+        '<a zref="{% url "delete_photo" record.id %}" type="submit" class="btn btn-success"'
+        'onclick="confirmDelete(this)">Delete</a>', verbose_name='')
 
     def __init__(self, *args, **kwargs):
         super(PhotoTable, self).__init__(*args, **kwargs)
@@ -58,8 +58,8 @@ class EventTable(tables.Table):
     user = tables.Column()
     autocheck = False
     delete = TemplateColumn(
-        '<a href="{% url "delete_event" record.id %}" type="submit" class="btn '
-        'btn-success">Delete</a>', verbose_name='')
+        '<a zref="{% url "delete_event" record.id %}" type="submit" class="btn btn-success"'
+        'onclick="confirmDelete(this)">Delete</a>', verbose_name='')
 
     def __init__(self, *args, **kwargs):
         super(EventTable, self).__init__(*args, **kwargs)

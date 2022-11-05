@@ -1,6 +1,7 @@
 {% extends "app-tracker/base.html" %}
 {% load render_table from django_tables2 %}
-
+{% load static %}
+<script src="{% static 'app-tracker/js/scripts.js' %}"></script>
 {% block title %}Photos{% endblock title %}
 
 {% block content %}
@@ -8,7 +9,7 @@
     <h2>Photos : {{ table.rows|length }}</h2>
     <form action="{% url 'photos_delete' %}" method="post">
       {% csrf_token %}
-      <input type="submit"  value="Delete Photos" id="deletebtn" disabled>
+      <input type="submit" onclick="return confirm('Are you sure you want to delete?')" value="Delete Photos" id="deletebtn" disabled>
       <input onclick="photoClickHandler()" type="button" value="Select All Photos">
       <p></p>
       <p></p>

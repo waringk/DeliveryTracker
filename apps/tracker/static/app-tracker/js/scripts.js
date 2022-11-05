@@ -88,3 +88,16 @@ function closeModalBox() {
     settings.style.display = "none";
 }
 
+
+// Modal window to ask the user to confirm delete on events list & photo list pages
+function confirmDelete(btn) {
+    if (confirm('Are you sure you want to delete this?')){
+        btn.href = btn.getAttribute('zref')
+    }
+}
+
+// Modal window to ask the user to confirm delete on event & photo details pages
+// Source: https://stackoverflow.com/questions/37398416/django-delete-confirmation
+$(document).on('click', '.item-detail-confirm-delete', function(){
+    return confirm('Are you sure you want to delete this?');
+})
