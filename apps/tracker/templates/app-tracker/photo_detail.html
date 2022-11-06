@@ -1,25 +1,25 @@
 {% extends "app-tracker/base.html" %}
 {% load static %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="{% static 'app-tracker/js/scripts.js' %}"></script>
 {% block title %}Photo Details{% endblock title %}
 
 {% block content %}
 {% if user.is_authenticated %}
-  <div class="card mb-3">
-    <img src="{{ event.photo.url }}" class="card-img-top img-fluid" >
+<div class="card mb-3">
+    <img src="{{ event.photo.url }}" class="card-img-top img-fluid">
     <div class="card-body">
-      <h5 class="card-title">Photo Taken at {{ event.created }}</h5>
-      <p class="card-text">Location: <a href="">{{ event.photo }}</p>
-      <p class="card-text"><small class="text-muted">User:</strong> {{ event.user }}</small></p>
-      <form action="{% url 'delete_photo' event.id %}" method="GET">
-        {% csrf_token %}
-        <input type="submit" value="Delete" class="btn btn-danger"
-               onclick="return confirm('Are you sure you want to delete?')"/>
-      </form>
+        <h5 class="card-title">Photo Taken at {{ event.created }}</h5>
+        <p class="card-text">Location: <a href="">{{ event.photo }}</a></p>
+        <p class="card-text"><small class="text-muted"><strong> User:</strong>
+            {{ event.user }}</small></p>
+        <form action="{% url 'delete_photo' event.id %}" method="GET">
+            {% csrf_token %}
+            <input type="submit" value="Delete" class="btn btn-danger"
+                   onclick="return confirm('Are you sure you want to delete?')"/>
+        </form>
     </div>
-  </div>
+</div>
 {% else %}
-  <p>Welcome to the Delivery Tracker! Please log in.</p>
+<p>Welcome to the Delivery Tracker! Please log in.</p>
 {% endif %}
 {% endblock content %}
