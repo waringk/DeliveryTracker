@@ -12,13 +12,16 @@ from tracker.views import *
 
 
 class TestTrackerURLs(TestCase):
-    def create_user(self, username='tester', password='12345'):
+    @staticmethod
+    def create_user(username='tester', password='12345'):
         return User.objects.create_user(username=username, password=password)
 
-    def create_event(self, photo, user):
+    @staticmethod
+    def create_event(photo, user):
         return Event.objects.create(photo=photo, user=user)
 
-    def create_device(self, user, uuid='911396a7-de99-49e0-b23d-643f48f08348'):
+    @staticmethod
+    def create_device(user, uuid='911396a7-de99-49e0-b23d-643f48f08348'):
         return UserDevice.objects.create(user=user, uuid=uuid)
 
     def create_user_and_login(self):
