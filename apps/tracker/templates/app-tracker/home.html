@@ -3,9 +3,12 @@
 {% block title %}Home{% endblock title %}
 
 {% block content %}
+<div class="sticky-top">
+    {% include 'app-tracker/navbar.html' %}
+</div>
 {% if user.is_authenticated %}
-  <p>Welcome to the Delivery Tracker!</p>
+<p>Welcome to the Delivery Tracker!</p>
 {% else %}
-  <p>Welcome to the Delivery Tracker! Please log in.</p>
+<p>Welcome to the Delivery Tracker! Please log in.</p>
 {% endif %}
 {% endblock content %}

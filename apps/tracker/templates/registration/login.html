@@ -3,6 +3,9 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
+<div class="sticky-top">
+    {% include 'app-tracker/navbar.html' %}
+</div>
   <h1>Log In</h1>
   <form method="post">
     {% csrf_token %}
