@@ -1,11 +1,27 @@
 {% extends "app-tracker/base.html" %}
-
+{% load static %}
 {% block title %}Home{% endblock title %}
 
 {% block content %}
-{% if user.is_authenticated %}
-  <p>Welcome to the Delivery Tracker!</p>
-{% else %}
-  <p>Welcome to the Delivery Tracker! Please log in.</p>
-{% endif %}
+<div class="sticky-top">
+    {% include 'app-tracker/navbar.html' %}
+</div>
+<div class="d-flex h-100 text-center">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+        <div class="px-3">
+            <img src="{% static "app-tracker/pynq_board.png" %}" alt="home"
+            width="744" height="402" />
+            <h1>Welcome to the Delivery Tracker.</h1>
+            <p class="lead">With a PYNQ-Z2 board and a webcam, check out what's
+                going on in front of your home or when your packages are
+                delivered.</p>
+            {% if user.is_authenticated is not True %}
+            <p class="lead">
+                <a href="{% url 'signup' %}"
+                   class="btn btn-secondary fw-bold">Sign up here!</a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock content %}

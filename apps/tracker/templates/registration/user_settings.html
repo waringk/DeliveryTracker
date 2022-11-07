@@ -4,6 +4,9 @@
 {% block title %}User Settings{% endblock %}
 
 {% block content %}
+<div class="sticky-top">
+    {% include 'app-tracker/navbar.html' %}
+</div>
 <body onload="onError();">
 <script src="{% static 'app-tracker/js/scripts.js' %}"></script>
 <script>
@@ -17,31 +20,35 @@
         userSettingsWindowHandler();
     }
 </script>
-<h3>User Settings</h3>
-<div class="card mb-3">
-    <div class="card-body">
-        <h5 class="card-title">Hello, {{ user.username|title }} </h5>
-        <p class="card-text"><strong>Username</strong>: {{ user.username }}</p>
-        <p class="card-text">
-            <strong>Name</strong>: {{ user.first_name }} {{ user.last_name }}
-        </p>
-        <p class="card-text"><strong>Email</strong>: {{ user.email }}</p>
-        <p class="card-text"><strong>Device</strong>: {{ uuid }}</p>
+<div class="container-fluid">
+    <h3>User Settings</h3>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Hello, {{ user.username|title }} </h5>
+            <p class="card-text"><strong>Username</strong>: {{ user.username }}
+            </p>
+            <p class="card-text">
+                <strong>Name</strong>: {{ user.first_name }} {{ user.last_name
+                }}
+            </p>
+            <p class="card-text"><strong>Email</strong>: {{ user.email }}</p>
+            <p class="card-text"><strong>Device</strong>: {{ uuid }}</p>
+        </div>
     </div>
-</div>
-<div id="userSettingsWindow" style="display: none;" class="modal-settings">
-    <div class="modal-box">
-        <span class="close" onclick="closeModalBox()">x</span>
-        <form method="post">
-            {% csrf_token %}
-            {{ user_form|crispy }}
-            {{ device_form|crispy }}
+    <div id="userSettingsWindow" style="display: none;" class="modal-settings">
+        <div class="modal-box">
+            <span class="close" onclick="closeModalBox()">x</span>
+            <form method="post">
+                {% csrf_token %}
+                {{ user_form|crispy }}
+                {{ device_form|crispy }}
 
-            <button class="btn btn-primary" type="submit">Update</button>
-        </form>
+                <button class="btn btn-primary" type="submit">Update</button>
+            </form>
 
+        </div>
     </div>
+    <button class="btn btn-info" onclick="userSettingsWindowHandler()">Edit
+    </button>
 </div>
-<button class="btn btn-info" onclick="userSettingsWindowHandler()">Edit
-</button>
 {% endblock %}

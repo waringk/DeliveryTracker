@@ -3,11 +3,16 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-  <h1>Log In</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button class="btn btn-success ml-2" type="submit">Log In</button>
-  </form>
-  <p><a href="{% url 'reset_password' %}">Forgot your password?</a></p>
+<div class="sticky-top">
+    {% include 'app-tracker/navbar.html' %}
+</div>
+<div class="container-fluid">
+    <h1>Log In</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn btn-success ml-2" type="submit">Log In</button>
+    </form>
+    <p><a href="{% url 'reset_password' %}">Forgot your password?</a></p>
+</div>
 {% endblock %}
