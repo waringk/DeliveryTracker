@@ -1,0 +1,9 @@
+#photo_table th {
+    position: sticky;
+    top: 140px;
+}
+
+#event_table th {
+    position: sticky;
+    top: 218px;
+}
