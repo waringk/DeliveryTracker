@@ -26,16 +26,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'events' %}">Events</a>
                 </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'support' %}">Support</a>
+                </li>
             </ul>
-            {% else %}
-            <div class="ms-auto">
-                <span><a href="{% url 'login' %}"
-                         class="btn btn-outline-primary">Log In</a></span>
-                <span><a class="btn btn-primary" href="{% url 'signup' %}">Sign
-                    Up</a></span>
-            </div>
-            {% endif %}
-
             {% if user.is_authenticated %}
             <div class="ms-auto">
                 <span class="hello-msg ms-auto">Hi {{ user.username }}!</span>
@@ -44,8 +39,14 @@
                 <span><a href="{% url 'logout' %}" class="btn btn-danger">Log
                 Out</a></span>
             </div>
+            {% else %}
+            <div class="ms-auto">
+                <span><a href="{% url 'login' %}"
+                         class="btn btn-outline-primary">Log In</a></span>
+                <span><a class="btn btn-primary" href="{% url 'signup' %}">Sign
+                    Up</a></span>
+            </div>
             {% endif %}
-
         </div>
     </div>
 </nav>

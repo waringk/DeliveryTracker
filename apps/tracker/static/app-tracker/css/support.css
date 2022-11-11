@@ -1,0 +1,9 @@
+/* Source: https://stackoverflow.com/a/49650313 */
+.sticky-offset {
+    top: 56px;
+}
+
+#body-row {
+    margin-left:0;
+    margin-right:0;
+}
