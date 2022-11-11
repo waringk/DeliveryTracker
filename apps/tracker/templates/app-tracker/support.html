@@ -1,0 +1,114 @@
+{% extends "app-tracker/base.html" %}
+{% load static %}
+{% block title %}Delivery Tracker Setup Guide{% endblock title %}
+
+{% block content %}
+<div class="sticky-top">
+    {% include 'app-tracker/navbar.html' %}
+</div>
+<!-- Source: https://stackoverflow.com/a/49650313 -->
+<div class="row" id="body-row">
+    <div id="sidebar-container"
+         class="sidebar-expanded d-none d-md-block col-2">
+        <div class="list-group sticky-top sticky-offset">
+            <a class="list-group-item list-group-item-action "
+               href="#list-item-1">Before you begin setup</a>
+            <a class="list-group-item list-group-item-action"
+               href="#list-item-2">Finding your Device Registration
+                Serial
+                Number</a>
+            <a class="list-group-item list-group-item-action"
+               href="#list-item-3">Setting up your PYNQ-Z2
+                Environment</a>
+            <a class="list-group-item list-group-item-action"
+               href="#list-item-4">Configuring the Notebook file</a>
+            <a class="list-group-item list-group-item-action"
+               href="#list-item-5">Running the Notebook file</a>
+            <a class="list-group-item list-group-item-action"
+               href="#list-item-6">Stopping your webcam</a>
+        </div>
+    </div>
+    <div class="col py-3" data-bs-spy="scroll"
+         data-bs-target="#support-list" data-bs-smooth-scroll="true"
+         tabindex="0">
+        <h1>Delivery Tracker Setup Guide</h1>
+        <h3 id="list-item-1">Before you begin setup:</h3>
+        <ol class="list d-grid gap-1" type="1">
+            <li class="list-item "><p>Have a USB webcam and a PYNQ-Z2
+                Board
+                ready.</p></li>
+            <li class="list-item"><p>Setup and connect your PYNQ-Z2
+                board
+                to your router by following the official tutorial <a
+                    href="https://pynq.readthedocs.io/en/latest/getting_started/pynq_z2_setup.html#">here</a>.
+            </p></li>
+        </ol>
+        <h3 id="list-item-2">Finding your Device Registration Serial
+            Number:</h3>
+        <ol class="list d-grid gap-1" type="1">
+            <li class="list-item "><p>Flip over your PYNQ-Z2 Board to
+                find
+                your serial number.</p>
+                <span><img src="{% static "app-tracker/serial_number.png" %}"alt="serial_number width="883" height="586"/></span>
+            </li>
+        </ol>
+        <h2 id="list-item-3">Setting up your PYNQ-Z2 Environment:</h2>
+        <ol class="list d-grid gap-1" type="1">
+            <li class="list-item"><p>Create an account with your
+                PYNQ-Z2
+                serial number <a
+                    href="{% url 'signup' %}">here</a>.
+            </p></li>
+            <li class="list-item"><p>Download and extract the Jupyter
+                notebooks files
+                and the haarcascade files <a
+                    href="{% static 'app-tracker/delivery_tracker_notebook_files.zip' %}">here</a>.
+            </p></li>
+            <li class="list-item"><p>Connect to your PYNQ-Z2 Board and
+                create a new directory to add your downloaded files
+                to.</p>
+                <span><img src="{% static "app-tracker/create_new_folder.png" %}"alt="create_new_folder"/></span>
+            </li>
+            <li class="list-item"><p>Open your newly created folder and
+                upload your extracted files.</p>
+                <span><img src="{% static "app-tracker/add_files.png" %}"alt="add_files"/></span>
+            </li>
+            <li class="list-item"><p>In your newly created folder,
+                create a
+                new folder named data and move both xml
+                files haarcascade_frontalface_default.xml and
+                haarcascade_upperbody.xml to this folder.</p>
+                <span><img src="{% static "app-tracker/create_data_folder.png" %}"alt="create_data_folder"/></span>
+            </li>
+        </ol>
+        <h2 id="list-item-4">Configuring the Notebook file:</h2>
+        <ol class="list d-grid gap-1" type="1">
+            <li class="list-item"><p>After connecting to your PYNQ-Z2
+                board, open Event Detection.ipynb.
+            </p></li>
+            <li class="list-item"><p>
+                In the cell under Step 1, enter your PYNQ-Z2 board's
+                serial
+                number and the URL of your Delivery tracker Django
+                server.
+            </p><span><img src="{% static "app-tracker/step_1.png" %}"alt="step_1"/></span>
+            </li>
+        </ol>
+        <h2 id="list-item-5">Running the Notebook file:</h2>
+        <div class="list d-grid gap-1">
+            <p>After setting your serial number and server url, follow
+                the
+                steps and run each cell sequentially.
+            </p>
+            <span><img class="image-fluid" src="{% static "app-tracker/event_tracker_notebook.png" %}"alt="event_tracker_notebook"/></span>
+        </div>
+        <h2 id="list-item-6">Stopping your webcam:</h2>
+        <div class="list d-grid gap-1">
+            <p>To stop running your webcam, interrupt the kernel by
+                pressing the stop button.
+            </p>
+            <span><img class="image-fluid" src="{% static "app-tracker/stop_webcam.png" %}"alt="stop_webcam"/></span>
+        </div>
+    </div>
+</div>
+{% endblock content %}
