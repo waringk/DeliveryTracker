@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('signup/', views.signup, name='signup'),
+    path('support/', views.SupportPageView.as_view(), name='support'),
     path('change_password/', views.PasswordsChangeView.as_view(
         template_name="registration/change_password.html")),
     path('password_success', views.password_success, name='password_success'),
@@ -22,7 +23,8 @@ urlpatterns = [
     path('reset_password_complete/', views.PasswordsResetCompleteView.as_view(
         template_name="registration/reset_password_complete.html"),
          name="password_reset_complete"),
-    path("user_settings/<username>", views.UserSettingsView, name="user_settings"),
+    path("user_settings/<username>", views.UserSettingsView,
+         name="user_settings"),
     path('', views.HomePageView.as_view(), name='home'),
     path('uploadFrame/', views.upload_frame, name='uploadFrame'),
     path('events/', views.EventListView.as_view(), name='events'),
