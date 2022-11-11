@@ -4,15 +4,14 @@ from datetime import datetime
 import cv2
 import numpy as np
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm, \
     SetPasswordForm
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordChangeView, PasswordResetView, \
     PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
-from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -24,7 +23,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, DeleteView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
 
-from .forms import UserRegisterForm, DateForm, DeleteEventsForm, DeletePhotosForm, \
+from .decorators import unauthenticated_user
+from .forms import UserRegisterForm, DateForm, DeleteEventsForm, \
+    DeletePhotosForm, \
     UserDeviceForm, UserForm
 from .models import Event, UserDevice
 from .tables import EventTable, PhotoTable
@@ -35,6 +36,12 @@ class HomePageView(TemplateView):
     template_name = "app-tracker/home.html"
 
 
+class SupportPageView(TemplateView):
+    # Renders the setup page.
+    template_name = "app-tracker/support.html"
+
+
+@unauthenticated_user
 def signup(request):
     # Renders a registration page with the user registration and device
     # registration forms.
@@ -115,6 +122,7 @@ def reset_password(request):
     return render(request, 'registration/reset_password.html')
 
 
+@login_required(login_url='login')
 def UserSettingsView(request, username):
     # View for User to update their User Settings
     # If the user updates their info, submit the entered form
@@ -131,7 +139,7 @@ def UserSettingsView(request, username):
             saved_device_settings.uuid = device_form.cleaned_data['uuid']
             saved_device_settings.user_id = user.pk
             saved_device_settings.save()
-            return redirect('/../user_settings/'+str(user.username))
+            return redirect('/../user_settings/' + str(user.username))
         # Otherwse, display the form validation error
         else:
             show_edit_field = 'true'
@@ -144,10 +152,12 @@ def UserSettingsView(request, username):
                 user_form = UserForm(instance=user)
         except User.DoesNotExist:
             raise Http404("Given user not found")
-    return render(request, 'registration/user_settings.html', context={'user_form': user_form,
-                                                                           'device_form': device_form,
-                                                                           'uuid':device_form.initial['uuid'],
-                                                                       'show_edit_field': show_edit_field})
+    return render(request, 'registration/user_settings.html',
+                  context={'user_form': user_form,
+                           'device_form': device_form,
+                           'uuid': device_form.initial['uuid'],
+                           'show_edit_field': show_edit_field})
+
 
 @csrf_exempt
 def upload_frame(request):
