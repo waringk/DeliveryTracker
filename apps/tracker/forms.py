@@ -65,7 +65,7 @@ class UserForm(forms.ModelForm):
 class UserDeviceForm(forms.ModelForm):
     # Adds the UUID field to register a device in the User registration
     # form.
-    uuid = forms.CharField(max_length=100,
+    uuid = forms.CharField(max_length=36,
                            help_text='Please enter your PYNQ-Z2 device ID.')
 
     class Meta:
