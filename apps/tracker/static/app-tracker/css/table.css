@@ -1,9 +1,19 @@
-#photo_table th {
-    position: sticky;
+.photos-list-form {
+    top: 56px;
+}
+
+.photos-headers {
     top: 140px;
 }
 
-#event_table th {
-    position: sticky;
-    top: 218px;
+.calendar-form {
+    top: 56px;
+}
+
+.events-list-form {
+    top: 140px;
+}
+
+.events-headers {
+    top: 178px;
 }
