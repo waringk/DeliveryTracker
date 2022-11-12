@@ -5,9 +5,6 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-<div class="sticky-top">
-    {% include 'app-tracker/navbar.html' %}
-</div>
 <div class="card mb-3">
     <img src="{{ event.photo.url }}" class="card-img-top img-fluid">
     <div class="card-body">
