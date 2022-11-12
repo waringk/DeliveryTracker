@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from tracker.models import Event, UserDevice
+from apps.tracker import models
 from django.urls import resolve, reverse
-from tracker.views import *
+from apps.tracker.views import *
 
 
 # python manage.py test tracker.tests.urls
@@ -18,11 +18,11 @@ class TestTrackerURLs(TestCase):
 
     @staticmethod
     def create_event(photo, user):
-        return Event.objects.create(photo=photo, user=user)
+        return models.Event.objects.create(photo=photo, user=user)
 
     @staticmethod
     def create_device(user, uuid='911396a7-de99-49e0-b23d-643f48f08348'):
-        return UserDevice.objects.create(user=user, uuid=uuid)
+        return models.UserDevice.objects.create(user=user, uuid=uuid)
 
     def create_user_and_login(self):
         self.create_user()
@@ -46,11 +46,11 @@ class TestTrackerURLs(TestCase):
 
     def test_signup_url_is_resolved(self):
         url = reverse('signup')
-        self.assertEqual(resolve(url).func, signup)
+        self.assertEqual(resolve(url).func, models.signup)
 
     def test_password_success_url_is_resolved(self):
         url = reverse('password_success')
-        self.assertEqual(resolve(url).func, password_success)
+        self.assertEqual(resolve(url).func, models.password_success)
 
     def test_home_page(self):
         response = self.client.get('http://127.0.0.1:9595/')

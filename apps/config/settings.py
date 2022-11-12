@@ -47,7 +47,12 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     # Local
     'tracker',
+    'notification_service',
+    'notifications',
 ]
+
+NOTIFICATIONS_NOTIFICATION_MODEL = 'notification_service.Notification'
+DJANGO_NOTIFICATIONS_CONFIG = { 'USE_JSONFIELD': True}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
