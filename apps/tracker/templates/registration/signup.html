@@ -3,17 +3,12 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-<div class="sticky-top">
-    {% include 'app-tracker/navbar.html' %}
-</div>
-<div class="container-fluid">
-    <h1>Sign up</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form|crispy }}
-        {{ device_form|crispy }}
+<h1>Sign up</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    {{ device_form|crispy }}
 
-        <button class="btn btn-success" type="submit">Sign Up</button>
-    </form>
-</div>
+    <button class="btn btn-success" type="submit">Sign Up</button>
+</form>
 {% endblock %}
