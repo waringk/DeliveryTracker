@@ -1,46 +1,29 @@
 {% extends "app-tracker/base.html" %}
 {% load render_table from django_tables2 %}
-
 {% block title %}Events{% endblock title %}
 
 {% block content %}
-
-
 {% if user.is_authenticated %}
-<div class="bg-dark sticky-top">
-    {% include 'app-tracker/navbar.html' %}
-    <div class="container-fluid bg-body">
+<div class="sticky-top bg-body calendar-form">
+    <form action="/events_by_date/" method="post">
+        {% csrf_token %}
         <h2>Events : {{ table.rows|length }}</h2>
         Select By Date
-        <form action="/events_by_date/" method="post">
-            {% csrf_token %}
-            {{ form.as_table }}
-            <input class="btn btn-primary" type="submit" value="Submit"/>
-        </form>
-        <p></p>
-        <p></p>
-
-        <p></p>
-        <p></p>
+        {{ form.as_table }}
+        <input class="btn btn-primary" type="submit" value="Submit"/>
+    </form>
+</div>
+<form id="events_by_date_form" action="{% url 'events_delete' %}"
+      method="post">
+    {% csrf_token %}
+    <div class="sticky-top bg-body events-list-form">
         <input class="btn btn-danger" type="submit" value="Delete Events"
                form="events_by_date_form" id="deletebtn" disabled>
         <input class="btn btn-secondary" onclick="eventClickHandler()"
                type="button" form="events_by_date_form"
                value="Select All Events">
     </div>
-
-    <p></p>
-    <p></p>
-</div>
-
-<p></p>
-<p></p>
-<form id="events_by_date_form" action="{% url 'events_delete' %}"
-      method="post">
-    {% csrf_token %}
     {% render_table table %}
 </form>
-{% else %}
-<p>Welcome to the Delivery Tracker! Please log in.</p>
 {% endif %}
 {% endblock content %}
