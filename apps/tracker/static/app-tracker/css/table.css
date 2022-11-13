@@ -1,19 +1,25 @@
 .photos-list-form {
-    top: 56px;
+    position: sticky;
+    top: 57px;
+
 }
 
 .photos-headers {
-    top: 140px;
+    position: sticky;
+    top: 141px;
 }
 
 .calendar-form {
-    top: 56px;
+    position: sticky;
+    top: 57px;
 }
 
 .events-list-form {
-    top: 140px;
+    position: sticky;
+    top: 141px;
 }
 
 .events-headers {
-    top: 178px;
+    position: sticky;
+    top: 179px;
 }
