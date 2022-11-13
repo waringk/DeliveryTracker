@@ -4,7 +4,7 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-<div class="sticky-top bg-body calendar-form">
+<div class="bg-body calendar-form">
     <form action="/events_by_date/" method="post">
         {% csrf_token %}
         <h2>Events : {{ table.rows|length }}</h2>
@@ -16,7 +16,7 @@
 <form id="events_by_date_form" action="{% url 'events_delete' %}"
       method="post">
     {% csrf_token %}
-    <div class="sticky-top bg-body events-list-form">
+    <div class="bg-body events-list-form">
         <input class="btn btn-danger" type="submit" value="Delete Events"
                form="events_by_date_form" id="deletebtn" disabled>
         <input class="btn btn-secondary" onclick="eventClickHandler()"
