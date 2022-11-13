@@ -1,13 +1,13 @@
 from django.test import TestCase
-from apps.tracker.models import Event, UserDevice
+from tracker.models import Event, UserDevice
 from django.contrib.auth.models import User
 import json
 import tempfile
 
-# run tests for models: python manage.py test tracker.tests.models
-# ** or run with coverage report **
+# run tests : python manage.py test tracker.tests.models
+# run tests with coverage report :
 # coverage run --source='tracker.tests.models' manage.py test tracker.tests.models
-# get report: coverage report
+# get report : coverage report
 
 
 class TestTrackerModels(TestCase):
