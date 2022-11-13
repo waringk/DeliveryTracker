@@ -101,3 +101,122 @@ function confirmDelete(btn) {
 $(document).on('click', '.item-detail-confirm-delete', function(){
     return confirm('Are you sure you want to delete this?');
 })
+
+
+// Get the session cookie for creating the page components
+// Source: https://www.advantch.com/blog/how-to-set-up-user-notifications-for-your-django-app-part-2/
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+      }
+      return cookieValue;
+    }
+
+// Connect the session component to fetch user notifications from the database
+// Source: Modified from: https://www.advantch.com/blog/how-to-set-up-user-notifications-for-your-django-app-part-2/
+const csrf_token = getCookie('csrftoken');
+function fetchLatest(alpine_bell) {
+    fetch(location.origin + '/inbox/notifications/api/all_list/', {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrf_token,
+            },
+        }).then(response => response.json())
+        .then(data => {
+
+            // Open the notifications dropdown and fetch all notifications
+            var notifications = data['all_list'];
+            console.log(notifications)
+            if (!alpine_bell.isOpen) {
+                alpine_bell.notifications = notifications;
+            } else {
+                alpine_bell.pendingNotifications = notifications;
+            }
+            // Check if any notifications are unread
+            var hasUnread = false;
+            for (var x = 0; x < notifications.length; ++x) {
+                if (notifications[x].unread)
+                    hasUnread = true;
+            }
+            // Add the red dot for new notifications
+            alpine_bell.hasUnreadNotifications = hasUnread;
+            if (hasUnread) {
+                    $('#unread_dot').addClass('animate-pulse expanding red_filter')
+
+            }
+            return data
+        }).catch(err => {
+            console.log(err);
+        })
+}
+
+// Mark notifications as read
+// Source: Modified from: https://www.advantch.com/blog/how-to-set-up-user-notifications-for-your-django-app-part-2/
+function markAsRead() {
+    fetch(location.origin + '/inbox/notifications/mark-all-as-read/', {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrf_token,
+            },
+        }).then(response => response)
+        .then(data => {
+            return data
+        }).catch(err => {
+            console.log(err);
+        })
+}
+
+// Timer to search for new notifications
+var notifications_dropdown = null;
+setInterval(fetchLatestNotificationsTimer, 5000);
+function fetchLatestNotificationsTimer() {
+    fetchLatest(notifications_dropdown);
+}
+
+// Connect the notification icon with the notifications dropdown
+// Source: Modified from: https://www.advantch.com/blog/how-to-set-up-user-notifications-for-your-django-app-part-2/
+document.addEventListener('alpine:initializing', () => {
+    Alpine.data('user_notifications_dropdown', () => ({
+
+        isOpen: false, //drop down state
+        hasUnreadNotifications: false, // red dot will show if this is true
+        notifications: [], // list of notifications
+        pendingNotifications: null,
+
+        init() {
+            notifications_dropdown = this;
+            fetchLatest(this);
+        },
+        // Toggles the notifications drop down
+        toggle() {
+            this.isOpen = !this.isOpen
+            // If the user has notifications, show the red dot on the bell
+            // If the user toggles the drop down, mark notifications as read
+            if (this.isOpen) {
+                if (this.pendingNotifications!=null){
+                    this.notifications = this.pendingNotifications;
+                    this.pendingNotifications = null;
+                }
+                var dot = $('#unread_dot');
+                if (dot.hasClass('red_filter')){
+                    markAsRead();
+                    dot.removeClass('animate-pulse expanding red_filter')
+                }
+            }
+        }
+    }))
+})

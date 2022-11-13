@@ -1,5 +1,5 @@
 from django.test import TestCase
-from tracker.models import Event, UserDevice
+from apps.tracker.models import Event, UserDevice
 from django.contrib.auth.models import User
 import json
 import tempfile

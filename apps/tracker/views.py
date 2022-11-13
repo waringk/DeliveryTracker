@@ -22,6 +22,7 @@ from django.views import generic, View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, DeleteView
 from django_tables2 import SingleTableView, SingleTableMixin, RequestConfig
+from notifications.signals import notify
 
 from .decorators import unauthenticated_user
 from .forms import UserRegisterForm, DateForm, DeleteEventsForm, \
@@ -179,6 +180,10 @@ def upload_frame(request):
         photoName = photoName.replace(":", ".")
         eventInstance.photo.save(photoName, content, save=False)
         eventInstance.save()
+
+        # Create the event notification
+        notify.send(user, recipient=user, verb='You have a new event', target=eventInstance,
+                    description='Photo ' + photoName + ' was published.')
 
         send_email(user.email, user.username)
 

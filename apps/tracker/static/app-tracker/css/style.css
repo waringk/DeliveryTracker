@@ -37,3 +37,42 @@
     text-decoration: none;
     cursor: pointer;
 }
+
+.whitebutton {
+    color:white;
+}
+
+.newnotification {
+    margin-left:30px;
+    bottom:0.3rem;
+
+}
+
+@keyframes changewidth {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.2);
+  }
+}
+
+/* Expands Notifications Icon Red Dot */
+.expanding {
+  animation-duration: 0.33s;
+  animation-name: changewidth;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+/* Notifications Icon Turns Red */
+.red_filter {
+    filter:invert(16%) sepia(74%) saturate(7468%) hue-rotate(359deg) brightness(103%) contrast(113%)
+    }
+
+/* Notifications Bolded Text */
+.heavy-text {
+    font-weight: 900;
+
+}

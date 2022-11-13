@@ -45,7 +45,7 @@ class PhotoTable(tables.Table):
         fields = ("photo", "created", "user", "selected_photos")
         exclude = ("id",)
         empty_text = "No data available."
-        attrs = {"thead": {"class": "sticky-top bg-body photos-headers"}, }
+        attrs = {"thead": {"class": "bg-body photos-headers"}, }
 
 
 class EventTable(tables.Table):
@@ -86,4 +86,4 @@ class EventTable(tables.Table):
         fields = ("photo", "created", "user", "selected_events")
         exclude = ("id",)
         empty_text = "No data available."
-        attrs = {"thead": {"class": "sticky-top bg-body events-headers"}, }
+        attrs = {"thead": {"class": "bg-body events-headers"}, }
