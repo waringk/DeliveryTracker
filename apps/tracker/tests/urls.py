@@ -1,14 +1,16 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from apps.tracker import models
-from django.urls import resolve, reverse
-from apps.tracker.views import *
+import json
+import tracker.models
+from tracker.views import *
 
 
-# python manage.py test tracker.tests.urls
-# ** or run with coverage report **
+# run tests : python manage.py test tracker.tests.urls
+# run tests with coverage report :
 # coverage run --source='tracker.tests.urls' manage.py test tracker.tests.urls
-# coverage report
+# get report : coverage report
+
+URL = 'http://127.0.0.1:9595'
 
 
 class TestTrackerURLs(TestCase):
@@ -18,11 +20,11 @@ class TestTrackerURLs(TestCase):
 
     @staticmethod
     def create_event(photo, user):
-        return models.Event.objects.create(photo=photo, user=user)
+        return tracker.models.Event.objects.create(photo=photo, user=user)
 
     @staticmethod
     def create_device(user, uuid='911396a7-de99-49e0-b23d-643f48f08348'):
-        return models.UserDevice.objects.create(user=user, uuid=uuid)
+        return tracker.models.UserDevice.objects.create(user=user, uuid=uuid)
 
     def create_user_and_login(self):
         self.create_user()
@@ -44,24 +46,24 @@ class TestTrackerURLs(TestCase):
         login = self.client.login(username='tester', password='01234')
         self.assertFalse(login)
 
-    def test_signup_url_is_resolved(self):
-        url = reverse('signup')
-        self.assertEqual(resolve(url).func, models.signup)
-
-    def test_password_success_url_is_resolved(self):
-        url = reverse('password_success')
-        self.assertEqual(resolve(url).func, models.password_success)
+    def test_admin_page(self):
+        User.objects.create_superuser(username='admin',
+                                      email='admin@gmail.com',
+                                      password='capstone')
+        self.client.login(username='admin', password='capstone')
+        response = self.client.get(URL + '/admin/')
+        self.assertEqual(response.status_code, 200)
 
     def test_home_page(self):
-        response = self.client.get('http://127.0.0.1:9595/')
+        response = self.client.get(URL)
         self.assertEqual(response.status_code, 200)
 
     def test_login_page(self):
-        response = self.client.get('http://127.0.0.1:9595/accounts/login/')
+        response = self.client.get(URL + '/accounts/login/')
         self.assertEqual(response.status_code, 200)
 
     def test_signup_page(self):
-        response = self.client.get('http://127.0.0.1:9595/signup/')
+        response = self.client.get(URL + '/signup/')
         self.assertEqual(response.status_code, 200)
 
     def test_user_settings_page(self):
@@ -69,53 +71,81 @@ class TestTrackerURLs(TestCase):
         user = self.create_user()
         self.client.login(username='tester', password='12345')
         self.create_device(user=user)
-        url = 'http://127.0.0.1:9595/user_settings/'+str(user)
+        url = URL + '/user_settings/' + str(user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_photos_page(self):
         self.create_user_and_login()
-        response = self.client.get('http://127.0.0.1:9595/photos/')
+        response = self.client.get(URL + '/photos/')
         self.assertEqual(response.status_code, 200)
 
     def test_events_page(self):
         self.create_user_and_login()
-        response = self.client.get('http://127.0.0.1:9595/events/')
+        response = self.client.get(URL + '/events/')
         self.assertEqual(response.status_code, 200)
 
     def test_events_sort_photo_page(self):
         self.create_user_and_login()
-        response = self.client.get('http://127.0.0.1:9595/events/?sort=photo/')
+        response = self.client.get(URL + '/events/?sort=photo/')
         self.assertEqual(response.status_code, 200)
 
     def test_events_sort_created_page(self):
         self.create_user_and_login()
-        response = self.client.get(
-            'http://127.0.0.1:9595/events/?sort=created/')
+        response = self.client.get(URL + '/events/?sort=created/')
         self.assertEqual(response.status_code, 200)
 
     def test_events_sort_user_page(self):
         self.create_user_and_login()
-        response = self.client.get('http://127.0.0.1:9595/events/?sort=user')
+        response = self.client.get(URL + '/events/?sort=user')
         self.assertEqual(response.status_code, 200)
 
     def test_events_by_date_page(self):
         self.create_user_and_login()
-        response = self.client.get('http://127.0.0.1:9595/events/2022-11-05')
+        response = self.client.get(URL + '/events/2022-11-05')
         self.assertEqual(response.status_code, 200)
 
     def test_photos_sort_photo_page(self):
         self.create_user_and_login()
-        response = self.client.get('http://127.0.0.1:9595/photos/?sort=photo/')
+        response = self.client.get(URL + '/photos/?sort=photo/')
         self.assertEqual(response.status_code, 200)
 
     def test_photos_sort_created_page(self):
         self.create_user_and_login()
-        response = self.client.get(
-            'http://127.0.0.1:9595/photos/?sort=created/')
+        response = self.client.get(URL + '/photos/?sort=created/')
         self.assertEqual(response.status_code, 200)
 
     def test_photos_sort_user_page(self):
         self.create_user_and_login()
-        response = self.client.get('http://127.0.0.1:9595/photos/?sort=user')
+        response = self.client.get(URL + '/photos/?sort=user')
         self.assertEqual(response.status_code, 200)
+
+    def test_notifications_page(self):
+        self.create_user_and_login()
+        response = self.client.get(URL + '/inbox/notifications/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_support_page(self):
+        self.create_user_and_login()
+        response = self.client.get(URL + '/support/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_upload_frame_page_with_valid_id(self):
+        user = self.create_user()
+        self.create_device(user=user)
+        frameList = [[[255, 0, 0], [255, 0, 0], [255, 0, 0]]]
+        data = {'param': '911396a7-de99-49e0-b23d-643f48f08348',
+                'arr': frameList}
+        response = self.client.post(URL + '/uploadFrame/', json.dumps(data),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+
+    def test_upload_frame_page_with_invalid_id(self):
+        user = self.create_user()
+        self.create_device(user=user)
+        frameList = [[[255, 0, 0], [255, 0, 0], [255, 0, 0]]]
+        data = {'param': '00000000-1111-2222-3333-444444444444',
+                'arr': frameList}
+        response = self.client.post(URL + '/uploadFrame/', json.dumps(data),
+                                    content_type='application/json')
+        self.assertEqual(response.status_code, 404)
