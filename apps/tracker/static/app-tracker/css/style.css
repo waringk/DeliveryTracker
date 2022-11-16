@@ -67,12 +67,28 @@
 }
 
 /* Notifications Icon Turns Red */
-.red_filter {
+.red-filter {
     filter:invert(16%) sepia(74%) saturate(7468%) hue-rotate(359deg) brightness(103%) contrast(113%)
-    }
+}
 
 /* Notifications Bolded Text */
 .heavy-text {
     font-weight: 900;
+}
 
+/* Reduces the margin for the event notification text */
+.event-text-margin {
+    margin-bottom: 0rem;
+}
+
+/* Formats the time since text in the event notification*/
+.time-since-created {
+    font-size: 80%;
+    font-color: grey;
+    text-decoration: none;
+}
+
+/* Controls the width of the event notification dropdown*/
+.notification-window {
+    width: 25rem !important
 }

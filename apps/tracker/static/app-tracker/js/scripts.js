@@ -120,6 +120,55 @@ function getCookie(name) {
       return cookieValue;
     }
 
+// Calculates & Formats timesince event in user notifications drop down
+function prettyDate(dateMs)
+{
+    var msPerSec = 1000;
+    var msPerMin = msPerSec*60;
+    var msPerHr = msPerMin*60;
+    var msPerDay = msPerHr*24;
+
+    var remainder = dateMs;
+    var numDays = Math.floor(remainder/msPerDay);
+    remainder %= msPerDay;
+    var numHours = Math.floor(remainder/msPerHr);
+    remainder %= msPerHr;
+    var numMin = Math.floor(remainder/msPerMin);
+    remainder %= msPerMin;
+    var numSec = Math.floor(remainder/msPerSec);
+    remainder %= msPerSec;
+
+    // Formats output of timesince
+    var prefix = '';
+    if (numDays > 0) {
+        prefix = ' day'
+        if (numDays > 1) {
+            prefix = prefix + 's'
+        }
+        return numDays + prefix + ' ago';
+    } else if (numHours > 0) {
+        prefix = ' hour'
+        if (numHours > 1) {
+            prefix = prefix + 's'
+        }
+        return numHours + prefix + ' ago';
+    } else if (numMin > 0) {
+        prefix = ' minute'
+        if (numMin > 1) {
+            prefix = prefix + 's'
+        }
+        return numMin + prefix + ' ago';
+    } else if (numSec > 0) {
+        prefix = ' second'
+        if (numSec > 1) {
+            prefix = prefix + 's'
+        }
+        return numSec + prefix + ' ago';
+    } else {
+        return remainder + ' milliseconds ago';
+    }
+}
+
 // Connect the session component to fetch user notifications from the database
 // Source: Modified from: https://www.advantch.com/blog/how-to-set-up-user-notifications-for-your-django-app-part-2/
 const csrf_token = getCookie('csrftoken');
@@ -138,11 +187,13 @@ function fetchLatest(alpine_bell) {
             // Open the notifications dropdown and fetch all notifications
             var notifications = data['all_list'];
             console.log(notifications)
+
             if (!alpine_bell.isOpen) {
                 alpine_bell.notifications = notifications;
             } else {
                 alpine_bell.pendingNotifications = notifications;
             }
+
             // Check if any notifications are unread
             var hasUnread = false;
             for (var x = 0; x < notifications.length; ++x) {
@@ -152,7 +203,7 @@ function fetchLatest(alpine_bell) {
             // Add the red dot for new notifications
             alpine_bell.hasUnreadNotifications = hasUnread;
             if (hasUnread) {
-                    $('#unread_dot').addClass('animate-pulse expanding red_filter')
+                    $('#unread_dot').addClass('animate-pulse expanding red-filter')
 
             }
             return data
@@ -187,6 +238,18 @@ function fetchLatestNotificationsTimer() {
     fetchLatest(notifications_dropdown);
 }
 
+
+setInterval(updateNotificationTimeSince, 500);
+function updateNotificationTimeSince() {
+    if (notifications_dropdown != null) {
+        var notifications = notifications_dropdown.notifications;
+        for (var x=0; x<notifications.length; ++x) {
+            var HLA = $('#how-long-ago' + x);
+            HLA.text(function(){ var current=new Date(); var ts=new Date(notifications[x].timestamp); return prettyDate(current-ts); });
+        }
+    }
+}
+
 // Connect the notification icon with the notifications dropdown
 // Source: Modified from: https://www.advantch.com/blog/how-to-set-up-user-notifications-for-your-django-app-part-2/
 document.addEventListener('alpine:initializing', () => {
@@ -212,9 +275,9 @@ document.addEventListener('alpine:initializing', () => {
                     this.pendingNotifications = null;
                 }
                 var dot = $('#unread_dot');
-                if (dot.hasClass('red_filter')){
+                if (dot.hasClass('red-filter')){
                     markAsRead();
-                    dot.removeClass('animate-pulse expanding red_filter')
+                    dot.removeClass('animate-pulse expanding red-filter')
                 }
             }
         }
