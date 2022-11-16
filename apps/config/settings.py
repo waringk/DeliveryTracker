@@ -29,7 +29,8 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = True
 
 # SECURITY WARNING: Your local machine's IP will be accessible by devices!
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*',
+                 '192.168.1.X']
 
 
 # Application definition

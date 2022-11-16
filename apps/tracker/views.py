@@ -18,6 +18,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views import generic, View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, TemplateView, DeleteView
@@ -30,6 +31,7 @@ from .forms import UserRegisterForm, DateForm, DeleteEventsForm, \
     UserDeviceForm, UserForm
 from .models import Event, UserDevice
 from .tables import EventTable, PhotoTable
+from datetime import datetime
 
 
 class HomePageView(TemplateView):
@@ -175,15 +177,24 @@ def upload_frame(request):
 
         # create new image instance and save in db
         eventInstance = Event(user=user)
-        photoName = str(datetime.now()) + '.jpg'
+        time = datetime.now()
+        photoName = str(time) + '.jpg'
         photoName = photoName.replace(" ", "_")
         photoName = photoName.replace(":", ".")
         eventInstance.photo.save(photoName, content, save=False)
         eventInstance.save()
 
+        year = time.strftime("%Y")
+        day = time.strftime("%d")
+        month = time.strftime("%m")
+        hour = time.strftime("%I")
+        minute = time.strftime("%M")
+        am_pm = time.strftime("%p")
+
         # Create the event notification
-        notify.send(user, recipient=user, verb='You have a new event', target=eventInstance,
-                    description='Photo ' + photoName + ' was published.')
+        notify.send(user, recipient=user, verb='New Event ' + ' ' + month + '-' + day + '-' + year + ' ' + hour + ':' +
+                                               minute + am_pm, target=eventInstance, description='Photo ' + photoName
+                                                                                                 + ' was published.')
 
         send_email(user.email, user.username)
 

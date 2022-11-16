@@ -66,11 +66,11 @@
          x-transition:leave="transition ease-in duration-100"
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-90"
-         class="tw-absolute tw-right-0 tw-z-20 tw-w-64 tw-mt-2 tw-overflow-hidden tw-bg-white tw-rounded-md tw-shadow-lg sm:tw-w-80"
+         class="tw-absolute tw-right-0 tw-z-20 tw-w-64 tw-mt-2 tw-overflow-hidden tw-bg-white tw-rounded-md tw-shadow-lg notification-window"
          style="display:none">
         <div class="tw-py-2">
             <template x-for="(item, index) in notifications" :key="item.id">
-                <a :href="'../events/'+item.target_object_id"
+                <div
                    class="tw-flex tw-items-center tw-px-4 tw-py-3 tw--mx-2 tw-transition-colors tw-duration-300 tw-transform tw-border-b tw-border-gray-100 hover:tw-bg-gray-50">
                     <p class="tw-mx-2 tw-text-sm tw-text-gray-600">
 
@@ -81,12 +81,14 @@
                             d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>  <circle
                             cx="12" cy="13" r="4"/></svg>
                     </span></p>
+                    <div>
 
-                    <span class="tw-font-bold" href="#" x-text=""></span>
-                    <p :class="{'heavy-text':item.unread }"
-                       x-text="item.verb"></p><span
-                    class="tw-text-blue-500 hover:tw-underline" href="#"></span></p>
-                </a>
+                    <a :href="'../events/'+item.target_object_id"><p :class="{'heavy-text':item.unread, 'event-text-margin':true}"
+                       x-text="item.verb"></p></a><span
+                    class="tw-text-blue-500 hover:tw-underline" href="#"></span>
+                        <span class="time-since-created" style="color:#808080" href=""onclick="return false;" :id="'how-long-ago'+index"></span>
+                    </div>
+                </div>
             </template>
         </div>
         <a href="../inbox/notifications/"
