@@ -18,6 +18,8 @@
 </script>
 <div class="container-fluid">
     <h3>User Settings</h3>
+    <p>Update your password <a href="{% url 'change_password' %}"
+                                 class="link-info">here</a>.</p>
     <div class="card mb-3">
         <div class="card-body">
             <h5 class="card-title">Hello, {{ user.username|title }} </h5>
