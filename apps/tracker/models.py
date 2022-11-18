@@ -23,7 +23,6 @@ class Event(models.Model):
 
 class UserDevice(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # uuid = models.CharField(max_length=36, null=True, blank=True)
     uuid = models.CharField(max_length=36, unique=True)
     objects = models.Manager()
 
