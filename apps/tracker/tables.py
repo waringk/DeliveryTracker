@@ -1,3 +1,4 @@
+from datetime import datetime
 import itertools
 
 import django_tables2 as tables
@@ -27,6 +28,10 @@ class PhotoTable(tables.Table):
         return mark_safe(
             '<input type="checkbox" onchange="photoButtonChangeHandler(this)" name="selected_photos'
             + str(next(self.counter)) + '" value="' + str(record.id) + '" />')
+
+    def render_created(self, record):
+        # Render created time in user's local time zone
+        return record.created.astimezone().strftime('%b %d, %Y, %I:%M%p')
 
     def render_photo(self, value, record):
         # Render the photo as a linkable image in the column
@@ -68,6 +73,10 @@ class EventTable(tables.Table):
         return mark_safe(
             '<input type="checkbox" onchange="eventButtonChangeHandler(this)" name="selected_events'
             + str(next(self.counter)) + '" value="' + str(record.id) + '" />')
+
+    def render_created(self, record):
+        # Render created time in user's local time zone
+        return record.created.astimezone().strftime('%b %d, %Y, %I:%M%p')
 
     def render_photo(self, value, record):
         # Render the photo as a linkable image in the column

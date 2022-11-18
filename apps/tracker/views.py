@@ -3,6 +3,7 @@ from datetime import datetime
 
 import cv2
 import numpy as np
+import pytz
 from django.conf import settings
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -14,6 +15,7 @@ from django.contrib.auth.views import PasswordChangeView, PasswordResetView, \
     PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
 from django.core.files.base import ContentFile
 from django.core.mail import EmailMessage
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
@@ -177,7 +179,7 @@ def upload_frame(request):
 
         # create new image instance and save in db
         eventInstance = Event(user=user)
-        time = datetime.now()
+        time = datetime.now().astimezone()
         photoName = str(time) + '.jpg'
         photoName = photoName.replace(" ", "_")
         photoName = photoName.replace(":", ".")
@@ -230,6 +232,15 @@ class PhotoDetailView(CorrectUserMixin,
     context_object_name = 'event'
     template_name = "app-tracker/photo_detail.html"
 
+    # format the created date in the user's time zone and pass to the template
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['event'] = get_object_or_404(Event, id=self.kwargs['pk'])
+        user_local_event_time = Event.objects.get(id=self.kwargs['pk']).created.astimezone()\
+            .strftime('%b %d, %Y, %I:%M%p')
+        context['user_local_event_time'] = user_local_event_time
+        return context
+
 
 class PhotosDeleteView(LoginRequiredMixin, CreateView,
                        SingleTableView,
@@ -274,6 +285,15 @@ class EventDetailView(CorrectUserMixin,
     context_object_name = 'event'
     template_name = "app-tracker/event_detail.html"
 
+    # format the created date in the user's time zone and pass to the template
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['event'] = get_object_or_404(Event, id=self.kwargs['pk'])
+        user_local_event_time = Event.objects.get(id=self.kwargs['pk']).created.astimezone()\
+            .strftime('%b %d, %Y, %I:%M%p')
+        context['user_local_event_time'] = user_local_event_time
+        return context
+
 
 class EventListView(LoginRequiredMixin, CreateView,
                     SingleTableView):
@@ -290,11 +310,11 @@ class EventListView(LoginRequiredMixin, CreateView,
         try:
             # Initializes the date form with the most recent photo(s) date
             newest_event = Event.objects.filter().values('created')[:1]
-            today = newest_event[0]['created'].date()
-            form = DateForm(initial={'created': today})
+            today = newest_event[0]['created'].astimezone()
+            form = DateForm(initial={'created': today.date})
             table = EventTable(
                 Event.objects.filter(user=self.request.user).filter(
-                    created__date=today))
+                    created__date=datetime.now().astimezone()))
         # If there are no photos for the user, renders an empty event list
         except IndexError:
             form = DateForm(initial={'created': today})
@@ -349,11 +369,19 @@ class EventsByDateFormResultsView(LoginRequiredMixin,
         if request.method == 'GET':
             form = self.form_class(request.GET)
             form.instance.user = request.user
+
             # Initializes the date form with the most recently selected date
+            # Calculates the user's local time zone date to filter for events
             form = DateForm(initial={'created': date})
+            user_current_date = datetime.strptime(date, '%Y-%m-%d')
+            today_midnight = user_current_date.astimezone().replace(hour=0, minute=0, second=0,
+                                                                    microsecond=0).astimezone(pytz.utc)
+            today_eod = user_current_date.astimezone().replace(hour=23, minute=59, second=59, microsecond=0).astimezone(
+                pytz.utc)
             table = EventTable(
                 Event.objects.filter(user=self.request.user).filter(
-                    created__date=date))
+                    Q(created__gte=today_midnight) & Q(created__lte=today_eod)))
+
             RequestConfig(request).configure(table)
             return render(request, "app-tracker/events_list_by_date.html",
                           {"form": form, "table": table})
