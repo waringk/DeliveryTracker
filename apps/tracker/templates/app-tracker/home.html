@@ -3,15 +3,17 @@
 {% block title %}Home{% endblock title %}
 
 {% block content %}
-<div class="d-flex h-100 text-center">
+<div class="d-flex h-60 text-center">
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
         <div class="px-3">
             <img src="{% static "app-tracker/pynq_board.png" %}" alt="home"
             width="744" height="402" />
-            <h1>Welcome to the Delivery Tracker.</h1>
-            <p class="lead">With a PYNQ-Z2 board and a webcam, check out what's
+            <h1 class="display-4 pt-4 homepynqintro">Welcome to the Delivery
+                Tracker.</h1>
+            <h5>With a PYNQ-Z2 board and a webcam, check out
+                what's
                 going on in front of your home or when your packages are
-                delivered.</p>
+                delivered.</h5>
             {% if user.is_authenticated is not True %}
             <p class="lead">
                 <a href="{% url 'signup' %}"
@@ -21,4 +23,38 @@
         </div>
     </div>
 </div>
+<section class="d-flex justify-content-center py-5 ">
+<div class="container bg-dark py-5 text-light bg-opacity-90">
+    <div class="row text-center">
+        <div class="col-lg-4 px-5">
+            <img src="{% static "app-tracker/gmail.png" %}" alt="home"
+                    width="90" height="90" />
+            <h3 class="pt-2">Stay Notified</h3>
+            <p>Receive automatic email notifications when a
+                new event has
+                occurred or parcel has been delivered to your residence.
+                Get notified with alerts in our navigation bar when logged
+                in.</p>
+        </div>
+        <div class="col-lg-4 px-5">
+            <img src="{% static "app-tracker/gallery.png" %}" alt="home"
+                    width="90" height="90" />
+            <h3 class="pt-2">View Your Photos</h3>
+            <p>Photos are saved in our database to be viewed at your
+            convenience. Sort your photos and events, view details such as
+            time and date, and delete once they are no longer needed.</p>
+        </div>
+        <div class="col-lg-4 px-5">
+            <img src="{% static "app-tracker/technical-support.png" %}"
+            alt="home" width="90" height="90" />
+            <h3 class="pt-2">Get Support</h3>
+            <p>Step by step instructions are provided to walk you through
+                setup of your PYNQ-Z2 device and make your life easier.
+                Simply click on Support in the navigation bar for detailed
+                instructions.</p>
+        </div>
+    </div>
+</div>
+</section>
+
 {% endblock content %}
