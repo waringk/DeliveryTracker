@@ -8,7 +8,7 @@
 <div class="card mb-3">
     <img src="{{ event.photo.url }}" class="card-img-top img-fluid">
     <div class="card-body">
-        <h5 class="card-title">Photo Taken at {{ event.created }}</h5>
+        <h5 class="card-title">Photo Taken at {{ user_local_event_time }}</h5>
         <p class="card-text">Location: <a href="">{{ event.photo }}</a></p>
         <p class="card-text"><small class="text-muted"><strong>User:</strong>
             {{ event.user }}</small></p>
