@@ -92,3 +92,13 @@
 .notification-window {
     width: 25rem !important
 }
+
+/* Custom font for heading on home page */
+@font-face {
+    font-family: homePageFont;
+    src: url('/static/app-tracker/Clip.ttf');
+}
+
+h1.homepynqintro {
+    font-family: homePageFont;
+}
